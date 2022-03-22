@@ -6,13 +6,13 @@ excerpt: ""
 categories:
   - BOJ
 tags:
-  - [BOJ, Python]
+  - [TIL, BOJ, Python]
 
 toc: true
 toc_sticky: true
  
-date: 2022-00-00 00:00:00
-last_modified_at: 2022-00-00 00:00:00
+date: 2022-03-22
+last_modified_at: 2022-03-22
 ---
 # 🔎 문제
 [🔗 백준 0000번 문제이름](문제링크)
