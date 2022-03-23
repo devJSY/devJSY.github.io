@@ -4,7 +4,7 @@ title:  ""
 excerpt: ""
 
 categories:
-  - BOJ
+  - TIL
 tags:
   - [TIL, BOJ, Python]
 
