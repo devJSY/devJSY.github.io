@@ -1,14 +1,15 @@
-import math
+import requests
 
-#소수 판별 함수(2이상의 자연수에 대하여)
-def is_prime_number(x):
-  # 2부터 (x - 1)까지의 모든 수를 확인하며
-  for i in range(2, int(math.sqrt(x)) + 1):
-    # x가 해당 수로 나누어 떨어진다면
-    if x % i == 0:
-      return False # 소수가 아님
-    
-  return True
+# REST API 경로에 접속하여 응답(Response) 데이터 받아오기
+target = "https://jsonplaceholder.typicode.com/users"
+response = requests.get(url=target)
 
-print(is_prime_number(4))
-print(is_prime_number(7))
+# 응답(Response) 데이터가 JSON 형식이므로 바로 파이썬 객체로 변환
+data = response.json()
+
+# 모든 사용자(user) 정보를 확인하여 이름 정보만 삽입
+name_list = []
+for user in data:
+  name_list.append(user["name"])
+
+print(name_list)
