@@ -6,7 +6,7 @@ excerpt: ""
 categories:
   - TIL
 tags:
-  - [TIL, BOJ, Python]
+  - [TIL, Python]
 
 toc: true
 toc_sticky: true

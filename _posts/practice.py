@@ -1,15 +1,4 @@
-import requests
+n = 8
 
-# REST API 경로에 접속하여 응답(Response) 데이터 받아오기
-target = "https://jsonplaceholder.typicode.com/users"
-response = requests.get(url=target)
-
-# 응답(Response) 데이터가 JSON 형식이므로 바로 파이썬 객체로 변환
-data = response.json()
-
-# 모든 사용자(user) 정보를 확인하여 이름 정보만 삽입
-name_list = []
-for user in data:
-  name_list.append(user["name"])
-
-print(name_list)
+for i in range(n + 1):
+  print(i, "의 마지막 비트:", (i & -i))
