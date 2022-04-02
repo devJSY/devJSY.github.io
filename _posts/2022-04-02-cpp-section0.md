@@ -242,6 +242,5 @@ int main()
 # 😊 배우게 된 점
 - 오늘 처음 인프런 강의를 구매하고 강의를 들었는데 진짜 너무재밌다... 알고싶었던 내용을 뿌리개념부터 쏙쏙 알려주는게 재밌어서 기분 좋을 정도 강의 천천히 꼼꼼하게 알려주셔서 메모하면서 듣기도 좋다
 
-
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
