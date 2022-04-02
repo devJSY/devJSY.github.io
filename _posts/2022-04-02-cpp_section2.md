@@ -1,25 +1,25 @@
 ---
 published: true
-title:  "따라하며 배우는 C++ 섹션2. 변수와 기본적인 자료형"
+title:  "따라하며 배우는 C++ Section 2. 변수와 기본적인 자료형"
 excerpt: ""
 
 categories:
-  - TIL
+  - 따배씨++
 tags:
-  - [TIL, C++]
+  - [C++]
 
 toc: true
 toc_sticky: true
  
-date: 2022-00-00
-last_modified_at: 2022-00-00
+date: 2022-04-03
+last_modified_at: 2022-04-03
 ---
 
 # 🤔 학습목표
-- 따라하며 배우는 C++ 섹션2. 변수와 기본적인 자료형
+- 따라하며 배우는 C++ Section 2. 변수와 기본적인 자료형
 
 # 📃 학습내용
-## 📍 **따라하며 배우는 C++ 섹션2. 변수와 기본적인 자료형**
+## 📍 **따라하며 배우는 C++ Section 2. 변수와 기본적인 자료형**
 
 ### **🌱 **
 
@@ -32,7 +32,6 @@ last_modified_at: 2022-00-00
 ### **🌱 **
 
 # 😊 배우게 된 점
-**2022-00-00 TIL** - 
 
 
 # 📌참조링크
