@@ -4,15 +4,15 @@ title:  "따라하며 배우는 C++ 섹션6. 행렬,문자열,포인터,참조"
 excerpt: ""
 
 categories:
-  - TIL
+  - 따배씨++
 tags:
-  - [TIL, C++]
+  - [C++]
 
 toc: true
 toc_sticky: true
  
-date: 2022-00-00
-last_modified_at: 2022-00-00
+# date: 
+# last_modified_at: 
 ---
 
 # 🤔 학습목표
@@ -33,7 +33,6 @@ last_modified_at: 2022-00-00
 
 
 # 😊 배우게 된 점
-**2022-00-00 TIL** - 
 
 
 # 📌참조링크

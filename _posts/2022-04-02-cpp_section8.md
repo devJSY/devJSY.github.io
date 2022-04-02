@@ -4,15 +4,15 @@ title:  "따라하며 배우는 C++ 섹션8. 객체지향의 기초"
 excerpt: ""
 
 categories:
-  - TIL
+  - 따배씨++
 tags:
-  - [TIL, C++]
+  - [C++]
 
 toc: true
 toc_sticky: true
  
-date: 2022-00-00
-last_modified_at: 2022-00-00
+# date:
+# last_modified_at: 
 ---
 
 # 🤔 학습목표
@@ -32,8 +32,6 @@ last_modified_at: 2022-00-00
 ### **🌱 **
 
 # 😊 배우게 된 점
-**2022-00-00 TIL** - 
-
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
