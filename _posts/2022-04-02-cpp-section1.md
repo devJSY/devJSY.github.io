@@ -277,7 +277,7 @@ int main(void)
 
 ### **🌱 1.5 함수와의 첫 만남**
 
-> **입출력이 있는 예제코드1**
+> **입출력이 있는 예제코드**
 
 ```cpp
 #include <iostream> // cout, cin, endl, ...
@@ -959,6 +959,7 @@ int main()
 ```
 
 > **전처리기**
+
 ```cpp
 #include <iostream>
 #include <algorithm>
