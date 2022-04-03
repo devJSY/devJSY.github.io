@@ -333,7 +333,7 @@ ___
   - 변수랑 실제 사용하는 부분이랑 같아야 디버깅할 때 편함
   - 이후에 리팩토링 할때 편함
 
-### **🌱 2.2 정수형 (Integers) **
+### **🌱 2.2 정수형 (Integers)**
 
 - char 타입을 1바이트 저장소 개념으로 사용하는 경우가 있음
 
@@ -505,7 +505,7 @@ int main()
 - 22를 float 자료형으로 변환한 뒤에 4라는 정수형 데이터와 연산 함 이때 **둘중 하나라도 float 면 float 자료형으로 메모리에 저장됨**
 
 
-### **🌱 2.3 C++ 11 고정 너비 정수 (Fixed-width lntegers) **
+### **🌱 2.3 C++ 11 고정 너비 정수 (Fixed-width lntegers)**
 
 - C++ 에서는 데이터 사이즈를 최소사이즈만 규정하기때문에 플랫폼, 컴파일러 마다 실제 구현된 사이즈가 다를수 있음
   - 평균은 4바이트
@@ -811,7 +811,278 @@ int main()
 - `-nan(ind)`중 ind 의 뜻은 indeterminate 결정할수 없다는 뜻
 
 
-### **🌱 **
+### **🌱 2.6 불리언 자료형과 조건문 if**
+
+- Boolean의 B 수학자이름임
+- Boolean 은 조건문에서 많이 사용함
+  - true (1)
+  - false (0)
+
+___
+
+**Bollean 의 초기화 방법**
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	bool b1 = true; // copy initialization
+	bool b2(false); // direct '''
+	bool b3{ 1 }; // uniform ini..
+	bool b4 = 0;
+
+
+	return 0;
+}
+```
+___
+
+**Bollean ture or false 로 출력**
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	bool b1 = true; // copy initialization
+	bool b2(false); // direct '''
+	bool b3{ 1 }; // uniform ini..
+	bool b4 = 0;
+
+	cout << std::boolalpha;
+	cout << b1 << endl; // true
+	cout << b2 << endl; // false
+	cout << b3 << endl; // true
+	cout << b4 << endl; // false
+
+	cout << std::noboolalpha;
+	cout << b1 << endl; // 1
+	cout << b2 << endl; // 0
+	cout << b3 << endl; // 1
+	cout << b4 << endl; // 0
+	return 0;
+}
+}
+```
+
+- 기본출력은 1, 0 임
+- `cout << std::boolalpha;` 를 사용하면 출력이 1, 0 이 아닌 true, false 로 출력됨
+- 다시 1, 0 출력으로 바꾸고 싶다면 `cout << std::noboolalpha;` 사용
+  
+___
+
+**not 연산자**
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	bool a(true);
+
+	cout << !a << endl; // 0
+	cout << a << endl; // 1
+
+	cout << !true << endl; // 0
+	cout << !false << endl; // 1
+
+	return 0;
+}
+```
+
+- true 나 false 앞에 !가 not 연산자임 즉 반대로 바뀜
+- 변수로도 사용 가능
+- 웬만하면 안씀 버그가 생기면 찾기 힘듬
+
+___
+
+**and 연산자**
+
+- 논리연산자 and 
+  - `&&` 로 표현
+- 왼쪽 항과 오른쪽 항을 비교해서 Boolean 값 으로 반환해줌
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	bool a(true);
+
+	cout << std::boolalpha;
+
+	cout << (true && true) << endl; // true
+	cout << (true && false) << endl; // false
+	cout << (false && true) << endl; // false
+	cout << (false && false) << endl; // false
+
+	return 0;
+}
+```
+- 둘다 true 인 경우에만 true 를 반환해줌
+
+___
+
+**or 연산자**
+
+- 논리연산자 or
+  - `||` 로 표현
+- 둘중 하나만 true 면 true값을 반환 해줌
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	bool a(true);
+
+	cout << std::boolalpha;
+
+	cout << (true || true) << endl; // true
+	cout << (true || false) << endl; // true
+	cout << (false || true) << endl; // true
+	cout << (false || false) << endl; // false
+
+	return 0;
+}
+```
+
+___
+
+**if문**
+
+- 어떤 문장을 조건에 따라서 실행이 될지 안될지 결정해줌
+  - 조건은 () 안에 Bool 타입에따가 결정됨
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	if (1 > 3)
+		cout << "this is true" << endl;
+	else
+		cout << "this is false" << endl;
+
+	if (true) // (false)
+		cout << "this is true" << endl;
+	else
+		cout << "this is false" << endl;
+
+	// 여러 문장을 실행 시킬 경우 {} 로 표현
+	if (3 > 1)
+	{
+		cout << "this is true" << endl;
+		cout << "True sencond line" << endl;
+	}
+	else
+	{
+		cout << "this is false" << endl;
+	}	
+	return 0;
+}
+```
+
+- 여러줄을 실행시킬때는 {} 로 묶어줘야함
+  - 한줄도 {} 써도됨
+
+___
+
+**서로 같은 값인지 확인하는 함수**
+
+```cpp
+#include <iostream>
+
+
+bool isEqual(int a, int b)
+{
+	bool result = (a == b);
+
+	return result;
+}
+
+int main()
+{
+	using namespace std;
+
+	cout << std::boolalpha;
+	cout << isEqual(1, 1) << endl; // true
+	cout << isEqual(0, 3) << endl; // false
+}
+```
+___
+
+**if 문의 규칙**
+
+```cpp
+int main()
+{
+	using namespace std;
+
+	if (5)
+	{
+		cout << "True" << endl; // 출력됨
+	}
+	else
+		cout << "false" << endl; // 출력안됨
+	return 0;
+}
+```
+
+- if ()  
+  - **() 안에 값은 0 이외에는 전부 true임**
+- 식별하기 편하게 true나 false를 넣어 주는게 좋음
+- Boolean 값을 입력할때 true, false 로 입력하면 안됨
+  - 컴파일러 버전 마다 다를수 있음 
+- 오직 숫자 0과 1 만 인식함
+
+___
+
+**연습문제**
+
+> 정수 하나를 입력받고 그 숫자가 홀수인지 짝수인지 출력하는 프로그램을 만들어 봅시다.
+
+```cpp
+#include <iostream>
+
+
+bool remain(int a, int b)
+{
+	bool result = (a % 2);
+	if (result == 0)
+		return true;
+	else
+		return false;
+}
+
+int main()
+{
+	using namespace std;
+	int a;
+
+	cin >> a;
+	cout << std::boolalpha;
+	cout << remain(a, 2) << endl;
+
+	return 0;
+}
+```
+- C와 C++에서의 % 나머지 연산자는 정수형에 대해서만 수행할 수 있음
+
+
+
 
 ### **🌱 **
 
