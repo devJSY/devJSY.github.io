@@ -381,7 +381,7 @@ int main(void)
   - **C++ 은 함수안에서 함수를 정의 할 수 없음!**
 
 **연습문제**
-> 사용자로 부터 여러번 입력받아서 여러번 출력하는 코드 작성하기
+> **사용자로 부터 여러번 입력받아서 여러번 출력하는 코드 작성하기**
 
 ```cpp
 #include <iostream> // cout, cin, endl, ...
@@ -445,7 +445,8 @@ int main(void)
 
 
 **연습문제**
-> 올바른 변수명인지 구분하기
+> **올바른 변수명인지 구분하기**
+
 ```cpp
 int total; // ✔️
 int _orange; //❌ 언더바로 시작잘안함
@@ -509,7 +510,8 @@ int main()
 - **`{x = 1;}` 같이 지역변수에서 초기화 하지 않고 바로 인스턴스 해버리면 `int x(0);` 에서 선언된 메모리로 할당함!**
 
 **연습문제**
-> 어떤 값이 나올지 예측해보기
+> **어떤 값이 나올지 예측해보기**
+
 ```cpp
 #include <iostream> // cout, cin, endl, ...
 #include <cstdio> // printf
@@ -619,13 +621,13 @@ int main()
 - 줄바꿈 할때 **오퍼레이터(`<<`)를 남기는게** 프로그래머가 인식하기 좋음
 - 비주얼 스튜디오 에선 `{return x+y;}` 이렇게 다닥다닥 붙어진걸 Ctrl + x → Ctrl + v 하면 `{ return x + y; }` 이렇게 자동으로 포멧팅 해줌
 
-**중괄호 포멧팅 스타일 1**
+> **중괄호 포멧팅 스타일 1**
 
 ```cpp
 int add(int x, int y) {return x+y;}
 ```
 
-**중괄호 포멧팅 스타일 2**
+> **중괄호 포멧팅 스타일 2**
 
 ```cpp
 int add(int x, int y) {
@@ -633,7 +635,7 @@ int add(int x, int y) {
 }
 ```
 
-**중괄호 포멧팅 스타일 3**
+> **중괄호 포멧팅 스타일 3**
 
 ```cpp
 int add(int x, int y) 
@@ -785,7 +787,8 @@ ___
   - 원래 이렇게하는 게좋은데 테스트하거나 뭐하거나 하다보면 헤더파일에서 **정의** 해버려서 문제가 생기는 경우가 종종 있음
   - 이때 `#pragma once` 가 있으면 문제가 안생김
 
-> 전처리기의 표준
+> **전처리기의 표준**
+
 ```cpp
 #ifndef MY_ADD
 #define MY_ADD
@@ -872,7 +875,8 @@ int main()
 ```
 - `Myspacel::` 를 없애고 싶다면 `using namespace Myspacel;` 를 붙이고 쓰면 생략이 됨
 
-> 네임스페이스 안에 네임스페이스 사용법
+> **네임스페이스 안에 네임스페이스 사용법**
+
 ```cpp
 #include <iostream>
 
@@ -938,7 +942,8 @@ int main()
   - `9` 대신 `Hello, World` 같은것도 됨
   - 요즘은 매크로 많이 안씀
 
-> MAX 값 찾아주는 라이브러리 `#include <algorithm>`
+> **MAX 값 찾아주는 라이브러리** `#include <algorithm>`
+
 ```cpp
 #include <iostream>
 #include <algorithm>
