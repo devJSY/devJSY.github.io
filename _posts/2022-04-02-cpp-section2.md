@@ -1082,18 +1082,525 @@ int main()
 - C와 C++에서의 % 나머지 연산자는 정수형에 대해서만 수행할 수 있음
 
 
+### **🌱 2.7 문자형 char type**
+
+- **ASCII TABLE**
+  - 어떤 숫자가 어떤 문자에 대응하는 지 정해놓음
+  - 0 ~ 32 까지 화면에 표현되진 않음
+  - 33~127 까지 화면에 표현됨
+
+___
+
+**char 초기화**
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	char c1(65); // 1 = 65;, c1{65}; 등등 다됨
+	char c2('A'); // "Hello, World", std::string 
+
+	// A A 65 65 출력
+	cout << c1 << " " << c2 << " " << int(c1) << " " << int(c2) << endl;
+
+	// c-style casting
+	cout << (char)65 << endl; // A
+	cout << (int)'A' << endl; // 65
+
+	// c++-style casting
+	cout << char(65) << endl; // A
+	cout << int('A') << endl; // 65
+
+	// static casting
+	cout << static_cast<char>(65) << endl; // A
+	cout << static_cast<int>('A') << endl; // 65
+
+	// casting 시 변수의 값
+	char ch(97);
+	cout << ch << endl; // a
+	cout << static_cast<int>(ch) << endl; // 97
+	cout << ch << endl; // a
+}
+```
+
+- `char c2('A');`
+	- 한 글자를 사용할때는 따옴표를 사용함
+	- 문자열을 표현 할때는 겹따옴표 `" "` 를사용
+
+- 1 byte 짜리 아주작은 정수를 저장하는 다른 타입이 없어서 char 타입을 int 처럼 사용하는 경우가 있음
 
 
-### **🌱 **
+- **c++-style casting**
+  - 65로 초기화되는 char 를 새로 만든다는 의미
 
-### **🌱 **
+- c-style casting, c++-style casting, static casting 기능은 다 동일함
+  -  c-style casting, c++-style casting 는 강제로 변환하는 개념임
+  -  static casting 은 기본 타입간의 변환 할때 컴파일러 한테 미리 체크 해달라는 뜻 
+  - static casting의 `<>` 안에는 변환할 대상이되는 타입을 넣어주는 것임 
 
-### **🌱 **
 
-### **🌱 **
+- **casting 시 변수의 값**
+  - 원래 변수의 값은 변하지 않음
 
-# 😊 배우게 된 점
+- 현업에선 `static_cast<int>` 이 길어서 잘 사용 안함
+  - 가독성이 좋기떄문에 알아보기 힘든코드에서 사용하기 좋음
 
+___
+
+**버퍼**
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	char c1(65);
+	cin >> c1;
+	cout << c1 << " " << static_cast<int>(c1) << endl; 
+
+	cin >> c1;
+	cout << c1 << " " << static_cast<int>(c1) << endl;
+
+	return 0;
+}
+```
+
+- abc 를 입력하면 아래와 같이 출력됨
+  - a 97
+  - b 98
+ 
+- `cin >>` 에 두글자 입력시 첫 글자만 출력해줌
+  - 두번쨰 글자는 `버퍼`에 저장됨 
+
+- **버퍼링**
+  -  데이터가 들어올떄 **버퍼**라는 임시저장소에 저장하고 임시저장소에 있는것들이 처리가 끝나면 일부 데이터를 가져와 사용하는 
+
+___
+
+**char 타입의 크기**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	char c1(65);
+
+	cout << sizeof(char) << endl; // 1
+	cout << (int)std::numeric_limits<char>::max() << endl; // 127
+	cout << (int)std::numeric_limits<char>::lowest() << endl; // -128
+
+	cout << sizeof(unsigned char) << endl; // 1
+	cout << (int)std::numeric_limits<unsigned char>::max() << endl; // 255
+	cout << (int)std::numeric_limits<unsigned char>::lowest() << endl; // 0
+
+	return 0;
+}
+```
+___
+
+**줄바꿈**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	cout << int('\n') << endl; // 10
+	cout << "This is first lin \nsenond line";
+	cout << "This is first lin " << endl;
+	cout << "This is flush lin " << std::flush;
+
+	return 0;
+}
+```
+
+- `\n` 줄바꿈 아스키코드 10번
+  - n 이 new line 의 약자라고 추측됨
+
+- **이스케이프 시퀀스**: 화면에 표시가 안되는데 의미를 갖는 문자
+- `\n` 은 단순히 줄바꿈이라는 의미
+  -  `\n` 뒤에 문자가 버퍼에 안들어갈수도 있음
+- `endl;` 은 줄바꿈과 동시에 cout 버퍼에 있는 내용을 전부 다 출력해라 라는뜻  
+	- 출력하고 줄바꿈 
+	- `<< std::flush;` : 버퍼에있는걸 출력하고 줄바꿈을 하지않을떄 사용
+
+___
+
+**탭**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	cout << "This is first lin \tsenond line";
+
+	return 0;
+}
+```
+
+___
+
+**겹따옴표(") 출력하기**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	cout << int('\n') << endl; // 10
+	cout << "This is first lin \tsenond line \"";
+
+	return 0;
+}
+```
+
+- 문자열사이에 \ 를 넣어주면됨
+
+___
+
+**OS 경고음 출력하기**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	cout << "This is first lin \a senond line";
+
+	return 0;
+}
+```
+
+- `\a` 사용하면 os 에서 설정된 경고음이 나옴
+
+___
+
+**유니코드용 자료형**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	wchar_t c;
+	char16_t c;
+	char32_t c3;
+
+	return 0;
+}
+```
+
+### **🌱 2.8 리터럴 상수 (Literal Constants)**
+
+- C++ 14 Binary Literals
+- 상수
+  - 변하지않는 숫자
+  - ex) pi = 3.14; 등
+
+**리터럴**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	float pi = 3.14f;
+	int a = -1234u;
+	const float b = 3.14;
+	long double c = 1234l; // l, L, ul, lu, LL 등등 가능함
+	unsigned int n = 5u;
+	long n2 = 5L;
+	double d = 6.0e-10; // 6.0e100;
+
+	return 0;
+}
+```
+
+- 글자를 적어서 표현하는 상수를 **리터럴**이라고 부름
+- const
+  - pi 값이 변하지 않도록 해줌
+- `int i = -1234u;`
+	- -1234가 unsigned 로 캐스팅 되어 i 에 저장된다는 뜻
+  	- 별로 안좋음 차라리 바꿀꺼면 `int i = (unsigned int)1234;` 이런식으로 명확하게 캐스팅하는게 가독성이 좋음
+- 대부분 f나 l 을 주로씀
+
+___
+
+**8진수,10진수,16진수 초기화**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	int p = 0b1010;
+	int m = 0b1010'1111'1010;
+	int a = 8;
+	int x = 012; 
+	int f = 0xf;
+
+	cout << p << endl; // 10
+	cout << m << endl; // 2810
+	cout << a << endl; // 8
+	cout << x << endl; // 10
+	cout << f << endl; // 15
+
+	return 0;
+}
+```
+
+- **2진수**
+  - `int p = 0b1010;`
+  - C++ 14 부터 바이너리 리터럴이 가능해짐
+- **10진수 (Decimal)**: 0 1 2 3 4 5 6 7 8 9 10
+  - `int X = 12;`
+- **8 진수 (Octal)**: 0 1 2 3 4 5 6 7 10 11 12 13
+  - `int X = 012;`
+  - 앞에 0 붙이면 10진수가아닌 8 진수로 저장이됨
+- **16진수 (hexa)**: 0 1 2 3 4 5 6 7 8 9 A B C D E F 10 
+  - `int X = 0xF12;`
+  - 2진수를 16진수로 줄이면 글자수가 많이 줄어들기때문에 많이사용함
+
+- `int m = 0b1010'1111'1010;`
+  - `'` 를 중간중간에 넣을수있음 컴파일러가 무시함 단시 사람이 읽기 편하게 지원해주는 기능임 
+  - 10진수도 가능함
+- **cout 은 기본적으로 10진수로 출력이됨**
+
+___
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	int num_items = 123;
+	int price = num_items * 10; // 10 is ...
+
+	// 심볼릭 상수
+	const int price_per_item = 10;
+	int num_items = 123;
+	int price = num_items * price_per_item;
+
+	return 0;
+}
+```
+
+- 10을 매직 넘버라고 부름
+  - 코드에 남겨놓는건 좋지않음
+- 심볼릭 상수를 사용하는 방법이 있음
+
+### **🌱 2.9 심볼릭 상수 (symbolic constants)**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	const double gravity{ 9.0 };
+	double const gravity{ 9.0 };
+
+	const double gravity; // 불가능
+	return 0;
+}
+```
+
+- C++ 11 constexpr
+- 변수 초기화 할때 앞이나 뒤에 const 를 붙여서 변수값을 변경할 수없음
+  - 강제로 바꾸는 방법이 있긴한데 권장하지않음
+  - 주고 const 를 앞에 붙임
+  - const 는 변수만 선언이 불가함 **const 사용시 initalization** 필수임
+
+___
+
+**함수의 파라메타 const 선언**
+
+```cpp
+#include <iostream>
+#include <limits>
+
+using namespace std;
+
+
+void printNumber(const int my_number)
+{
+	cout << my_number << endl;
+}
+
+// 이런식으로 사용하는 경우가 더많음
+//void printNumber(const int& my_number) 
+
+int main()
+{
+	printNumber(123);
+
+	return 0;
+}
+```
+
+- 함수의 파라메타를 함수내에서 바꾸는 경우는 드뭄
+  - 차라리 복사해서 사용하기
+- **보통 함수의 파라메타를 const 로 막아버림**
+
+___
+
+```cpp
+#include <iostream>
+#include <limits>
+
+using namespace std;
+
+
+int main()
+{
+	const int my_const(123); // 컴파일 타임 상수
+	constexpr int my_const(123); // 컴파일 타임 상수 라는 표시
+
+	int number;
+	cin >> number;
+
+	const int special_number(number); // 런타임 상수
+
+	return 0;
+}
+```
+
+- 컴파일 시에 결정되는 것을 **컴파일 타임 상수** 라고 부름
+- 실행후에 결정되는 것을 **런타임 상수** 라고 부름
+- 문법상 둘을 구분할 수 없음
+  - 하지만 constexpr 을 사용하여 컴파일 타임 상수를 표시할 수 있음
+
+___
+
+**매직넘버 - 매크로로 해결하는 방법(C스타일)**
+
+```cpp
+#include <iostream>
+#define PRICE_PER_ITEM 30
+
+using namespace std;
+
+
+int main()
+{
+	int num_item = 123;
+
+	int price = num_item * PRICE_PER_ITEM;
+
+	return 0;
+}
+```
+
+- c++ 에서는 거의 안씀
+- 디버깅이 힘듬
+- 매크로는 대문자로 많이 사용
+- define 을 해버리면 정의 범위가 너무 넓어져서 안쓰는게 좋음
+
+___
+
+**매직넘버 const**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	const int price_per_item = 30;
+
+	int num_itemm = 123;
+
+	int price = num_itemm * price_per_item;
+
+	return 0;
+}
+```
+
+- 물리에서는 변수명중 상수를 k로 많이 사용함
+
+___
+
+**const 헤더파일에 모아놓기**
+
+**MY_CONSTANTS.h**
+
+```cpp
+#pragma once
+
+namespace constants
+{
+	constexpr double pi(3.141592);
+	constexpr double avogadro(6.0221413e23);
+	constexpr double moon_gravity(9.8 / 6.0);
+	//...
+}
+```
+
+1. MY_CONSTANTS.h 파일 생성
+
+**practice.cpp**
+
+```cpp
+#include <iostream>
+#include "MY_CONSTANTS.h"
+
+using namespace std;
+
+
+int main()
+{
+	double radius;
+
+	cin >> radius;
+
+	double circumference = 2.0 * radius * constants::pi;
+
+	return 0;
+}
+```
+
+2. include하여 사용하기
+
+
+- 다른 cpp파일에서도 헤더파일을 사용 할 수있으니 재사용이 용이함
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
