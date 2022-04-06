@@ -691,8 +691,857 @@ int main()
   - 한눈에보기 편함
   - `int add(int x, int y)` 당연히 이렇게 사용하는것도 맞음
 
+### **🌱 4.5 형변환 (Type conversion)**
+
+- 형변환: 다양한 데이터 타입끼리 변환하는 것
+
+___
+
+**암시적 형변환** 
+  - lmplicit Type Conversion (coersion)
+  - 컴파일러가 알아서 강제로 형변환 시키는 것
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+int main()
+{
+	using namespace std;
+
+	int a = 123.0; // 암시적 형변환
+
+	cout << typeid(a).name() << endl; 
+
+	return 0;
+}
+```
+
+- 컴파일러가 형변환 해줄때 비트단위에서 복붙하는게 아닌 뭔가 변화를 시켜주고 있다는것
+- 규칙이 있음
+  - auto 자동 형 추론시 유용함
+___
+
+**데이터 타입 확인하기**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+int main()
+{
+	using namespace std;
+
+	cout << typeid(4.0).name() << endl; // double
+
+	int a = 123;
+
+	cout << typeid(a).name() << endl; // int
+
+	return 0;
+}
+```
+
+- `#include <typeinfo>` 라이브러리
+  -  `typeid()` 안에 데이터 리터럴이나 변수형을 넣고 `.name()` 를 호출하면 어떠한 데이터타입인지 출력해줌
+
+___
+
+**numeric promotion**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+int main()
+{
+	using namespace std;
+
+	float a = 1.0f;
+	double d = a; // numeric promotion
+
+	cout << typeid(d).name() << endl; 
+
+	return 0;
+}
+```
+
+- **numeric promotion:** float 에서 double 로 상대적으로 작은자료형에서 큰 자료형으로 이동하는 것
+
+___
+
+**numeric conversion**
+
+**예제 1**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+int main()
+{
+	using namespace std;
+
+	// 1
+	double d = 3; 
+	short s = 2;
+
+	cout << typeid(d).name() << endl; 
+
+
+	// 2
+	int i = 30000;
+	char c = i;
+
+	cout << static_cast<int>(c) << endl; // 48
+
+
+	//3
+
+
+	return 0;
+}
+```
+
+- `#1` **numeric conversion:** 큰것을 작은것으로 바꾸거나 혹은 타입이 바뀌거나 하는것
+- `#2` 들어갈 수 있는 용량을 넘어가면 엉뚱한 48 이 출력되는둥 오류가 발생할 수 있음
+
+**예제 2**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+#include <iomanip>
+
+int main()
+{
+	using namespace std;
+
+	// 1
+	double d = 0.123456789;
+	float f = d;
+
+	cout << std::setprecision(12) << d << endl; // 0.123456789
+	cout << std::setprecision(12) << f << endl; // 0.123456791043
+	
+	// 2
+	int i = 1234;
+	float g = i;
+
+	cout << std::setprecision(12) << i << endl; // 1234
+	cout << std::setprecision(12) << g << endl; // 1234
+
+	// 3
+	float h = 3.14f;
+	int q = h;
+
+	cout << std::setprecision(12) << h << endl; // 3.1400001049
+	cout << std::setprecision(12) << q << endl; // 3
+
+
+	return 0;
+}
+```
+- `#1` 나름 최대한 비슷하게 저장하긴하지만 정밀도가 떨어져 정확히 저장할 수 없음
+- `#2` 동일하게 최대한 비슷하게 저장해줌
+- `#3` 반올림을 해주지않고 뒷부분을 잘라내서 저장함
+  - 반올림을 해주는 함수가 따로있음
+
+**예제 3**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+#include <iomanip>
+
+int main()
+{
+	using namespace std;
+
+	cout << 5u - 10; // 4294967291
+
+	return 0;
+}
+```
+- unsigned 끼리 계산한걸 unsigned에 넣을려고함
+- 형변환도 **우선순위**가 있음
+  - 4byte 보다작은것은 integer 로 바뀜
+  - int
+  - unsigend int
+  - long
+  - unsigned long
+  - unsigned long long
+  - float
+  - double
+  - long double 
+  - 순서대로 int가 가장낮고 long double 이 가장 높음
+
+___
+
+**명시적 형변환**
+  - Explicit Type Conversion (casting)
+
+```cpp
+#include <iostream>
+
+int main()
+{
+	using namespace std;
+
+	// 1
+	int i = int(4.0); // C++ 스타일 
+
+	// 2
+	int i = (int)4.0; // C 스타일 
+
+	// 3
+	int i = static_cast<int>(4.0) 
+
+	return 0;
+}
+```
+
+- `#1` integer 타입의 인스턴스를 하나 새로만들어 넣는다는 뜻
+- `#2` C 스타일의 캐스팅
+- `#3` 최근에 많이 사용하는 방식
+
+기능상 차이는 없음
+
+___
+
+**연습문제**
+
+> **numeric conversion 과 numeric promotion의 차이점**
+
+- **numeric promotion:** float 에서 double 로 등 상대적으로 작은자료형에서 큰 자료형으로 이동하는 것
+
+- **numeric conversion:** 큰것을 작은것으로 바꾸거나 혹은 타입이 바뀌거나 하는것
+
+
+### **🌱 4.6 문자열 std:string 소개**
+
+- 문자열 끝날때 끝난다는걸 표현하는 문자하나가 숨어있음
+
+**string 라이브러리 기본 사용법**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main()
+{
+	using namespace std;
+
+	const char my_strs [] = "Hello, World";
+	const string my_hello = "Hello, World";
+	const string my_hello("Hello, World"); // 동일하게 초기화 가능
+	const string my_hello{"Hello, World"}; // 동일하게 초기화 가능
+
+	string my_ID = "123";
+	string my_ID = 123; // 불가능
+	cout << my_hello << endl;
+
+	return 0;
+}
+```
+
+- `#include <string>` include 한뒤 `const string my_hello = "Hello, World";` 처럼 초기화
+- C++ 에서 제공해주는건 **한 글자임** 한글자를 여러번 나열해주는 방식으로 문자열을 표현해줌
+  - 같은 기능을 string 은 C++ 에서 제공해주는 것임
+  - string 은 사용자 정의 자료형이라고 보면됨
+- `string my_ID = 123;` 불가능 한이유는 암시적 형변환을 해주는 방법이 없기 때문임
+  - string 은 표준 라이브러리에 들어있긴하지만 바로바꿀순 없음
+  - 문자열로써 저장됨
+
+___
+
+**문제점 - cin으로 string 입력받을 경우**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main()
+{
+	using namespace std;
+
+	cout << "Your name ? :";
+	string name;
+	cin >> name;
+
+	cout << "Your age ? :";
+	string age;
+	cin >> age;
+
+	cout << name << " " << age << endl;
+
+
+	return 0;
+}
+```
+
+- cin 은 입력값에 빈칸이 있으면 다 입력받았다 인식함
+  - 첫번 째 입력에 `A B` 이렇게 입력하면 name 에 A age 에 B가 자동으로 들어감
+
+**해결법 - getline으로 string 입력받기**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main()
+{
+	using namespace std;
+
+	cout << "Your name ? :";
+	string name;
+	/*cin >> name;*/
+	std::getline(std::cin, name);
+
+	cout << "Your age ? :";
+	string age;
+	/*cin >> age;*/
+	std::getline(std::cin, age);
+
+	cout << name << " " << age << endl;
+
+
+	return 0;
+}
+```
+
+- `getline()`에 첫번쨰 파라메타로 cin, 두번째 파라메타로 입력받을 변수 넣기
+  - 엔터 칠떄까지 라인을 쭉 입력받음
+  - 라인 단위로 읽음
+
+___
+
+**문제점 - 정수를 입력받을 경우**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main()
+{
+	using namespace std;
+
+	cout << "Your age ? :";
+	int age;
+	cin >> age;
+	/*std::getline(std::cin, age);*/
+
+	cout << "Your name ? :";
+	string name;
+	/*cin >> name;*/
+	std::getline(std::cin, name);
+
+	cout << name << " " << age << endl;
+
+
+	return 0;
+}
+```
+
+- 정수 입력시 `std::getline(std::cin, name);` 이 스킵되는 현상
+
+
+**해결법 - `std::cin.ignore(32767, '\n')`**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main()
+{
+	using namespace std;
+
+	cout << "Your age ? :";
+	int age;
+	cin >> age;
+	/*std::getline(std::cin, age);*/
+
+	std::cin.ignore(32767, '\n');
+
+
+	cout << "Your name ? :";
+	string name;
+	/*cin >> name;*/
+	std::getline(std::cin, name);
+
+	cout << name << " " << age << endl;
+
+
+	return 0;
+}
+```
+
+- `'\n'` 을 만날때까지 최대 32767개의 글자를 무시해라 라는 뜻임
+  - 32767: 2byte integer 로 표현이 가능한 가장 긴 sigend value 값을 넣어준것 
+
+**`<limits>` 라이브러리로 매직넘버 없애기**
+
+```cpp
+#include <iostream>
+#include <string>
+#include <limits>
+
+int main()
+{
+	using namespace std;
+
+	cout << "Your age ? :";
+	int age;
+	cin >> age;
+	/*std::getline(std::cin, age);*/
+
+	/*std::cin.ignore(32767, '\n');*/
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	cout << "Your name ? :";
+	string name;
+	/*cin >> name;*/
+	std::getline(std::cin, name);
+
+	cout << name << " " << age << endl;
+ 
+	return 0;
+}
+```
+
+- 버퍼크기: `streamsize` 
+
+- 나중에 GUI 만들떄 입력기능을 제공해주는 라이브러리를 가져다쓸때 유용함
+
+___
+
+**문자열 더하기**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main()
+{
+	using namespace std;
+
+	string a = "Hello, ";
+	string b = "World";
+	string hw = a + b; // apend
+
+	hw += "I'm good";
+
+	cout << hw << endl;
+
+	return 0;
+}
+```
+
+- string 클래스 안에 정의 되어있어서 가능함
+
+___
+
+**문자열 길이 출력하기**
+
+```cpp
+#include <iostream>
+#include <string>
+
+int main()
+{
+	using namespace std;
+
+	string a = "Hello, World";
+	
+
+	cout << a.length() << endl; // 12
+
+	return 0;
+}
+```
+
+- string 클래스 안에 들어가있는 기능임
+- `변수.length()` 를 사용하여 출력 
+  - 맨앞과 맨뒤 `""` 를뺴고 알려줌 
+  - `"Hello, World"` 를 마우스로 갖다 냈을때 13으로 나오는 이유는 문자의 array 문자가 메모리안에 저장되어있는 형태로 봤을떄 13글자임 끝부분에 문자의 끝을 의미하는 `Null char`가 하나 숨어있음
+  - C스타일의 문자열하고 C++ 의 문자열은 약간의 차이가 있음
+
+### **🌱 4.7 열거형 (Enumerated Types)**
+
+
+- **enum (열거자 enumerator)**
+
+**열거형 예제 코드**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+int computeDamange(int weapon_id)
+{
+	if (weapon_id == 0) // sword
+	{
+		return 1;
+	}
+
+	if (weapon_id == 1) // hamer
+	{
+		return 2;
+	}
+
+	// ....
+}
+
+enum Color // user - defined data types
+{
+	COLOR_BLACK,
+	COLOR_RED,
+	COLOR_BLUE,
+	COLOR_GRREN,
+	COLOR_SKYBLUE, // 마지막 , 있어도 상관없음
+	/*BLUE*/ // Feeling의 BLUE와 중첩됨
+}; // ; 필수
+
+enum Feeling 
+{
+	HAAPY,
+	JOY,
+	TIRED,
+	BLUE
+};
+
+int main()
+{
+	using namespace std;
+
+	Color paint = COLOR_BLACK;
+	Color house(COLOR_BLUE);
+	Color appe{ COLOR_RED }; // {}
+	
+	return 0;
+}
+```
+
+
+- `COLOR_BLACK` 등에 마우스 갖다 댔을때 숫자 가 나옴
+- 내부적으로 int 로 저장됨
+  - 0부터 순서대로 배정됨
+- `{}` 초기환는 `()`나 `=`랑 특성이 조금 다름
+  - 객체지향 클래스 초기화 할때 자세히설명
+- `{}`로 묶여있지만 `Color의 BLUE` 와 `Feeling의 blue` 는 전역처럼 정의되기 때문에 같은 이름으로 사용할 수 없음
+  - C+11 에 추가된 enum class로 해결가능
+
+___
+
+**열거형 수동 할당**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+enum Color // user - defined data types
+{
+	COLOR_BLACK = -3,
+	COLOR_RED, // -2
+	COLOR_BLUE = 5, // 5
+	COLOR_GRREN = 5, // 5
+	COLOR_SKYBLUE, // 6
+	
+}; // ; 필수
+
+enum Feeling 
+{
+	HAAPY,
+	JOY,
+	TIRED,
+	BLUE
+};
+
+int main()
+{
+	using namespace std;
+
+	Color my_color = COLOR_BLACK;
+
+	cout << my_color << " " << COLOR_BLACK << endl; // 0 0
+	
+	return 0;
+}
+
+```
+
+- 가능함 위에서부터 1씩 더하면서 배정됨
+- `COLOR_BLUE` 과 `COLOR_GRREN` 의 같은 정수로 강제할당하면 구분할수 없기 때문에 문제가 발생할 수 있음
+  - 가급적 기본할당 사용
+  - 기본적으로 대문자로함
+
+___
+
+**정수형 캐스팅**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+enum Color // user - defined data types
+{
+	COLOR_BLACK = -3,
+	COLOR_RED, // -2
+	COLOR_BLUE = 5, // 5
+	COLOR_GRREN = 5, // 5
+	COLOR_SKYBLUE, // 6
+	
+}; // ; 필수
+
+enum Feeling 
+{
+	HAAPY,
+	JOY,
+	TIRED,
+	BLUE
+};
+
+int main()
+{
+	using namespace std;
+
+	int color_id = COLOR_RED; // 캐스팅은 가능
+
+	Color my_color = 3; // 불가능
+
+	Color my_color = static_cast<Color>(3); // 강제 캐스팅
+
+	cout << color_id << endl;
+	
+	return 0;
+}
+```
+
+- 캐스팅은 됨
+- `Color my_color = 3;` 등 assignment 는 불가능
+  - 이렇게 사용 안하려고 만든데 열거형이기때문임
+
+___
+
+**열거형 cin 우회 입력**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+enum Color // user - defined data types
+{
+	COLOR_BLACK = -3,
+	COLOR_RED, // -2
+	COLOR_BLUE = 5, // 5
+	COLOR_GRREN = 5, // 5
+	COLOR_SKYBLUE, // 6
+	
+}; // ; 필수
+
+enum Feeling 
+{
+	HAAPY,
+	JOY,
+	TIRED,
+	BLUE
+};
+
+int main()
+{
+	using namespace std;
+
+	cin >> my_color; // 불가능
+
+	int in_number;
+	cin >> in_number;
+
+	// 1
+	if (in_number == COLOR_BLACK) my_color = COLOR_BLACK;
+	//...
+
+	//2
+	if (in_number == static_cast<Color>(0)) 
+		my_color = static_cast<Color>(0);
+	//...
+
+
+	return 0;
+}
+```
+
+- `cin >> my_color;` 은 불가능 `in_number` 이라는 변수를 만들어서 조건문으로 캐스팅 하는 방법으로 우회 
+
+___
+
+**문자열로 입력받기**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+#include <string>
+
+enum Color // user - defined data types
+{
+	COLOR_BLACK,
+	COLOR_RED,
+	COLOR_BLUE,
+	COLOR_GRREN,
+	COLOR_SKYBLUE,
+	
+}; // ; 필수
+
+enum Feeling 
+{
+	HAAPY,
+	JOY,
+	TIRED,
+	BLUE
+};
+
+int main()
+{
+	using namespace std;
+
+	int my_color;
+	string str_input;
+
+	std::getline(cin, str_input);
+
+	if (str_input == "COLOR_BLACK") // color_black
+		my_color = static_cast<Color>(0);
+
+	return 0;
+}
+```
+
+- `#include <string>` 라이브러리의 `std::getline(cin, str_input);` 으로 입력받는 방법이 있음
+- 권장하지않음
+  - `"COLOR_BLACK"` 에서 오타 발생할수 있음
+  - 사용자가 소문자로 입력하는 경우도 있음
+- 열거형 은 보통 헤더파일에 넣고 include 해서 사용함
+- integer 타입으로 저장되는거같지만 문법상으로 integer 랑 100퍼센트 호환 되진않음 필요에 따라서 캐스팅하여 사용하기
+
+### **🌱 4.8 영역 제한 열거형 (열거형 클래스)**
+
+- Scoped Enumerations (Enum Class)
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+#include <string>
+
+enum Color 
+{
+	RED,
+	BLUE,
+	
+}; 
+
+enum Fruit 
+{
+	BANANA,
+	APPLE,
+};
+
+Color color = RED;
+Fruit fruit = BANANA;
+
+int main()
+{
+	using namespace std;
+
+	if (color == fruit)
+		cout << "Color is fruit ?" << endl; // 출력
+
+	return 0;
+}
+```
+
+- 내부적으로 int 로 저장되어 0이라는값으로 동일하기 때문에 출력
+- 실수할 가능성이 있음
+- C++ 11 에 적용됨 enum class
+
+___
+
+**enum class 예제 코드**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+#include <string>
+
+enum class Color 
+{
+	RED,
+	BLUE,
+	
+}; 
+
+enum class Fruit
+{
+	BANANA,
+	APPLE,
+};
+
+Color color = Color::RED;
+Fruit fruit = Fruit::BANANA;
+
+int main()
+{
+	using namespace std;
+
+	if (color == fruit) // 비교가 안되게 막아버림
+		cout << "Color is fruit ?" << endl;
+
+	if (static_cast<int>(color) == static_cast<int>(fruit)) // 강제 캐스팅
+		cout << "Color is fruit ?" << endl;
+
+	return 0;
+}
+```
+
+- `enum class Color ` 와같이 class 선언을 하면 `Color color = Color::RED;` 같이 영역이 제한됨
+
+___
+
+**enum type 끼리의 비교**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+#include <string>
+
+enum class Color 
+{
+	RED,
+	BLUE,
+	
+}; 
+
+enum class Fruit
+{
+	BANANA,
+	APPLE,
+};
+
+Color color1 = Color::BLUE;
+Color color2 = Color::BLUE;
+
+int main()
+{
+	using namespace std;
+
+	if (color1 == color2)
+		cout << "Same color " << endl;
+
+	return 0;
+}
+```
+
+- class 선언시 같은 enum 끼리는 비교가 가능함
+- namespace 랑 비슷함
+
+
 ### **🌱 **
 
+### **🌱 **
 
 # 😊 배우게 된 점
 
