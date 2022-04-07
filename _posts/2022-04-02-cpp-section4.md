@@ -402,6 +402,7 @@ int main()
 - 보통 상수들은 묶여있음
 - 헤더파일에서 include 해오면 **메모리 주소가 다름** 즉 cpp 파일수 만큼 메모리를 잡아먹음
   - 방지하는 방법: 초기화하지말고 **선언만 하기**
+
 ___
 
 **Linking** 
@@ -1539,12 +1540,457 @@ int main()
 - namespace 랑 비슷함
 
 
-### **🌱 **
+### **🌱 4.9 자료형에게 가명 붙여주기 (Type aliases)**
 
-### **🌱 **
+- 가명: aliases 
+- 긴것을 짧게 줄이는데 좋음
+- 유지보수할때 편함
+- 고정너비정수에서 플랫폼의 독립적인코딩을 할때에 내부적으로 사용함
 
-# 😊 배우게 된 점
+**typedef 용법 예제 코드 1**
 
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+int main()
+{
+	using namespace std;
+
+	typedef double distance_t;
+
+	double my_distance;
+	distance_t home2work;
+	distance_t home2school;
+
+	return 0;
+}
+```
+
+- typedef 기록을 해두고싶을때 
+  - distance_t를 쓸때는 double로 쓸려고 타이핑한것
+    - `_t` 타입 이름이라는 의미로 씀
+  - 메모, 주석 느낌
+- 자료형을 바꿀때 `typedef double distance_t;`의 자료형만 바꾸면 정의해둔 전체에 적용되기 때문에 유지관리하기 편함
+
+**typedef 용법 예제 코드 2**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+int main()
+{
+	using namespace std;
+
+	vector < pair<string, int> > pairlist1; // 1
+	vector < pair<string, int> > pairlist2; 
+
+	typedef vector < pair<string, int> > pairlist_t; // 2
+
+	pairlist_t pairlist1;
+	pairlist_t pairlist2;
+
+	return 0;
+}
+```
+
+- 하나의 자료형으로보면됨
+- string과 int의 페어가 vector에 넣어진다는것
+- vector는 array같은 것
+- `#1` 처럼 사용하던걸 `#2` 처럼 typedef 로 코드길이를 줄여줄수 있음
+
+___
+
+**Using**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+int main()
+{
+	using namespace std;
+
+	typedef vector < pair<string, int> > pairlist_t; // 1
+	using pairlist_t = vector < pair<string, int> >; // 2
+
+	pairlist_t pairlist1;
+	pairlist_t pairlist2;
+
+	return 0;
+}
+```
+
+- `#1` 변수에 초기화하는건 메모리공간을 복사하는 것임
+- `#2` 컴파일러에게 알려주는것 이기떄문에 `#1`과는 내부적으로 완전히 다름
+
+### **🌱 4.10 구조체 (struct)**
+
+**구조체:** 다양한 요소를 묶어서 하나의 자료형인것 처럼 사용할수 있게 해주는 것
+
+- C++ 에서는 클래스로 넘어가는 길목임
+- 열거형을 사용할수 있음
+
+**구조체를 사용하는 이유**
+1. 함수의 파라메타로 모든 변수를 넣어줘야해서 너무 길어짐
+2. 같은 변수를 여러번 반복할떄 좋음
+
+___
+
+**구조체 초기화 방법**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height;
+	float weight;
+	int age;
+	string name;
+};
+
+int main()
+{
+
+	Person me; // 1
+	me.age = 20;
+	me.name = "Jack Jack";
+	me.height = 2.0;
+	me.weight = 100.0;
+
+	Person mom{2.0,100.0,20,"Jack Jack"}; // 2
+	Person dad;
+
+	return 0;
+}
+```
+
+- `#1` 기본 초기화 방법
+- `#2` 유니폼 이니셜라이징`{}` 를 사용하여 편하게 초기화 할수 있음.
+
+___
+
+**구조체 프린트 방법**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height;
+	float weight;
+	int age;
+	string name;
+};
+
+void printPerson(Person ps)
+{
+
+	cout << ps.height << " " << ps.weight << " " << ps.age << " " << ps.name;
+	cout << endl;
+}
+
+int main()
+{
+
+	Person me; // 1
+	me.age = 20;
+	me.name = "Jack Jack";
+	me.height = 2.0;
+	me.weight = 100.0;
+
+	Person mom{2.0,100.0,20,"Jack Jack"}; // 2
+	Person dad;
+
+	printPerson(me); // me 출력하기
+
+	return 0;
+}
+```
+
+- 구조체 안의 변수를 접근할려면 `.`을 찍게 되어있음
+  - `.`을 멤버 셀렉션 오퍼레이터 라고함
+  - 구조체 안의 변수들을 멤버라고함
+
+___
+
+**구조체 안의 함수 사용**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height;
+	float weight;
+	int age;
+	string name;
+
+	void print()
+	{
+
+		cout << height << " " << weight << " " << age << " " << name;
+		cout << endl;
+	}
+};
+
+int main()
+{
+
+	Person me{2.0,100.0,20,"Jack Jack"}; 
+
+	me.print();
+
+	return 0;
+}
+```
+
+- 구조체 안에 `void print()` 함수를 선언하면 이미 Person 구조체에 속해 있기 떄문에 `ps.` 을 안찍어줘도 바로 접근할수 있음
+- `me.print();`로 함수를 실행함
+- 이런식으로 짜면 코드의 길이을 줄일수있음
+
+___
+
+**구조체 복사**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height;
+	float weight;
+	int age;
+	string name;
+
+	void print()
+	{
+
+		cout << height << " " << weight << " " << age << " " << name;
+		cout << endl;
+	}
+};
+
+int main()
+{
+
+	Person me{2.0,100.0,20,"Jack Jack"}; 
+	Person me2(me);
+	me2.print(); // 1
+
+	Person me{ 2.0,100.0,20,"Jack Jack" };
+	Person me2;
+	me2 = me;
+	me2.print(); // 2
+
+	return 0;
+}
+```
+
+- `#1` 과 `#2`와 같이 구조체를 복사해서 출력할 수도 있음
+- `#2` 단순한 경우에 사용함
+  - `=` 사용시 클래스랑 클래스, 구조체와 구조체를 복사해서 넣는 경우 문제가 발생할 수도 있음
+
+___
+
+**구조체 안의 구조체**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height;
+	float weight;
+	int age;
+	string name;
+
+	void print()
+	{
+
+		cout << height << " " << weight << " " << age << " " << name;
+		cout << endl;
+	}
+};
+
+struct Family
+{
+	Person me, mom, dad;
+};
+
+int main()
+{
+	Person me{ 2.0,100.0,20,"Jack Jack" };
+	Person me2;
+	me2 = me;
+	me2.print(); 
+
+	return 0;
+}
+```
+
+- `struct Family` 의 `Person me, mom, dad;` 와같이 구조체 안의 구조체를 정의할 수 있음
+
+___
+
+**함수에서 구조체를 리턴**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height;
+	float weight;
+	int age;
+	string name;
+
+	void print()
+	{
+
+		cout << height << " " << weight << " " << age << " " << name;
+		cout << endl;
+	}
+};
+
+Person getMe()
+{
+	Person me{ 2.0,100.0,20,"Jack Jack" };
+
+	return me;
+}
+
+int main()
+{
+	Person me_from_func = getMe();
+	me_from_func.print();
+
+	return 0;
+}
+```
+
+- 구조체 를 함수의 리턴값으로 사용할 수 있음
+- 파라메타로 넣을수도있음
+
+___
+
+**초기화시 주의사항**
+
+**멤버변수 기본값**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height= 3.0;
+	float weight = 200.0;
+	int age = 100;
+	string name = "Mr. Incredible";
+};
+
+int main()
+{
+	/*Person me{ 2.0,100.0,20,"Jack Jack" };*/
+	Person me;
+	cout << me.name << endl; // "Mr. Incredible"
+	return 0;
+}
+```
+
+- 직접 초기화를 할수도있음 즉 기본값을 넣어 주는 것
+  - 구조체를 초기화하면서 멤버 변수에 초기화를 안해주면 직접초기화된 값이 출력됨
+
+**멤버변수 우선순위**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Person
+{
+	double height= 3.0;
+	float weight = 200.0;
+	int age = 100;
+	string name = "Mr. Incredible";
+};
+
+int main()
+{
+	Person me{ 2.0,100.0,20,"Jack Jack" };
+	cout << me.name << endl; // "Jack Jack"
+	return 0;
+}
+```
+
+- 기본값 보다는 선언하면서 초기화해주는값이 우선순위가 높음
+
+**padding**
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+using namespace std;
+
+struct Employee // 14 byte
+{
+	short	id;   // 2 byte + 빈칸 2byte
+	int		age;  // 4 byte
+	double  wage; // 8 byte
+
+};
+
+int main()
+{
+	Employee emlp;
+
+	cout << sizeof(Employee) << endl; // 16
+
+	return 0;
+}
+```
+
+- 구조체에도 sizeof를 사용 할 수있음
+- 빈칸 2byte 가 추가되어 16이 출력됨
+- 순서와 사이즈를 잘맞춰주는게 최적화시 중요한 지식이됨
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
