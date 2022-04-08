@@ -341,10 +341,287 @@ int main()
   - long
   - int
 
+### **🌱 6.3 배열과 반복문**
 
-### **🌱 **
+- 배열은 같은 타입의 데이터가 메모리안에 일렬로 쭉 나열되어있음
 
-### **🌱 **
+**#1 정수 나눗셈**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	const int num_students = 5;
+	int score0 = 84;
+	int score1 = 92;
+	int score2 = 76;
+	int score3 = 81;
+	int score4 = 56;
+
+	int total_score = score0 + score1 + score2 + score3 + score4;
+
+	double avg_score = static_cast<double>(total_score) / num_students;
+	//Note: double(total_score) / num_students != double(total_score / num_students);
+
+	return 0;
+}
+```
+
+- int 형 의 나누기 계산은 버림을 하기때문에 값이 다를수 있음
+- 캐스팅한다음에 나눠야 데이터가 제대로나옴
+
+___
+
+**#2 정수 나눗셈 에제코드 for문으로 바꾸기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	const int num_students = 5;
+	int scores[num_students] = { 84,92,76,81,56 };
+
+	int total_score = 0;
+
+	for (int i = 0; i < num_students; ++i)
+	{
+		total_score += scores[i];
+	}
+
+	double avg_score = static_cast<double>(total_score) / num_students;
+	//Note: double(total_score) / num_students != double(total_score / num_students);
+
+	return 0;
+}
+```
+
+**#3 sizeof로 num_students 크기 지정**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	/*const int num_students = 5;*/
+	int scores[] = { 84,92,76,81,56 };
+
+	const int num_students = sizeof(scores) / sizeof(int);
+
+	int total_score = 0;
+
+	for (int i = 0; i < num_students; ++i)
+	{
+		total_score += scores[i];
+	}
+
+	double avg_score = static_cast<double>(total_score) / num_students;
+	//Note: double(total_score) / num_students != double(total_score / num_students);
+
+	return 0;
+}
+```
+
+- `#2` 코드를 이런식으로 바꾸면 `num_students` 의 사이즈를 연산하여 할당받게 만들 수 있음
+- **함수파라메타로 넘어갈때** 포인터 주소만 넘어감으로 비트별로 엉뚱한 숫자가 나올수 있음
+- 파라메터로 array를 보낼떈 첫 주소와 엘리먼트의 수 까지 같이 보내야함
+- 동적 할당을 사용하게되면 실험데이터를 손으로 입력안해도됨
+
+___
+
+**array 원소중 max 값 찾기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	/*const int num_students = 5;*/
+	int scores[] = { 84,92,76,81,56 };
+
+	const int num_students = sizeof(scores) / sizeof(int);
+
+	int max_score = 0;
+	int total_score = 0;
+
+	for (int i = 0; i < num_students; ++i)
+	{
+		total_score += scores[i];
+
+		max_score = (max_score < scores[i]) ? scores[i] : max_score; // 1
+
+		if (max_score < scores[i]) // 2
+			max_score = scores[i];
+	}
+
+	double avg_score = static_cast<double>(total_score) / num_students;
+	//Note: double(total_score) / num_students != double(total_score / num_students);
+
+	return 0;
+}
+```
+
+- `#1` 비교 연산자 사용
+- `#2` if 문 사용
+
+- `for (int i = 0; i < num_students; ++i)` 를
+`for (int i = 0; i <= num_students; ++i)` 과같이 `=` 를 붙이면 런타임 에러가 발생할 수 있음
+
+
+### **🌱 6.4 배열과 선택 정렬 selection sort**
+
+
+- 순서를 맞춰주는걸 정렬 (sorting) 이라고함
+- index: 배열에 저장되어있는 위치 
+- value: 배열에 저장되어있는 값 
+
+**swap**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void printAarry(const int array[], const int length)
+{
+	for (int index = 0; index < length; ++index)
+		cout << array[index] << " ";
+	cout << endl;
+}
+
+int main()
+{
+	const int length = 5;
+
+	int array[length] = { 3,5,2,1,4 };
+
+	printAarry(array, length);
+
+	// swap
+	int temp = array[0];
+	array[0] = array[1];
+	array[1] = temp;
+
+	printAarry(array, length);
+	// std::swap(...)
+
+	return 0;
+}
+```
+
+- 배열의 원소의 위치를 서로 바꾸는 방법
+- `std::swap()` 이 있음
+
+___
+
+**선택정렬**
+
+- **선택정렬:**  현재 index를들고 배열의 index를 쭉 둘러보면서 목표로하는값 과 자리를 스왑핑 하는 동작을 indx 요소만큼 반복하여 정렬하는 방식
+- 선택정렬가 이해되면 버블정렬 연습해보기
+
+**내가짠 선택정렬 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void printAarry(int array[], int length)
+{
+
+	for (int index = 0; index < length; ++index)
+	{
+		int temp = array[index];
+		for (int j = 0; j < length; ++j)
+		{
+			if (array[index] < array[j])
+			{
+				temp = array[index];
+				array[index] = array[j];
+				array[j] = temp;
+			}
+		}
+
+		cout << array[0] << array[1] << array[2] << array[3] << array[4] << endl;
+	}
+}
+
+int main()
+{
+	const int length = 5;
+
+	int array[length] = { 3,5,2,1,4 };
+
+	printAarry(array, length);
+
+	return 0;
+}
+```
+
+**선택정렬 예제코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void printAarry(const int array[], const int length)
+{
+	for (int index = 0; index < length; ++index)
+		cout << array[index] << " ";
+	cout << endl;
+}
+
+int main()
+{
+	const int length = 5;
+
+	int array[length] = { 3,5,2,1,4 };
+
+
+	for (int startIndex = 0; startIndex < length - 1; ++startIndex)
+	{
+		int smallestIndex = startIndex;
+
+		for (int currentindex = startIndex + 1; currentindex < length; ++currentindex)
+		{
+			if (array[smallestIndex] > array[currentindex])
+			{
+				smallestIndex = currentindex;
+			}
+		}
+
+		// swap twovalues in the array
+		// std::swap(array[smallestIndex], array[startIndex]);
+		{
+			int temp = array[smallestIndex];
+			array[smallestIndex] = array[startIndex];
+			array[startIndex] = temp;
+		}
+		
+		printAarry(array, length);
+	}
+
+	return 0;
+}
+```
+
+- `startIndex < length - 1;`
+  - `-1` 을 해주는 이유는 마지막꺼는 비교할 대상이 없기 때문에 연산을 안해도 되기 떄문임
+- Index만 바꿔주면 value 는 알아서바뀌기 때문에 굳이 따로 저장안해줘도됨
 
 ### **🌱 **
 
