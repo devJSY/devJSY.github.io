@@ -1330,12 +1330,485 @@ int main()
 }
 ```
 
-### **🌱 **
+### **🌱 5.9 난수 만들기 random numbers**
 
-### **🌱 **
+- 난수 만들기 Random Number Generation
 
-### **🌱 **
+- 컴퓨터는 랜덤 숫자를 만들 수 없음
+  - 유사, 가짜 랜덤 넘버를 만들기
 
+___
+
+**overflow 를 이용하여 난수 만들기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+unsigned int PRNG() // Pseudo Random Number Generator
+{
+	static unsigned int seed = 5523; // send number
+
+	seed = 8253729 * seed + 2396403;
+
+	return seed % 32768;
+}
+
+int main()
+{
+	for (int count = 1; count <= 100; ++count)
+	{
+		cout << PRNG() << "\t";
+
+		if (count % 5 == 0) cout << endl;
+
+	}
+	
+	return 0;
+}
+```
+
+- seed 넘버 시작하는 숫자
+  - 5523은 임의의 숫자임
+- overflow로 seed 넘버와 먼 숫자를 뽑아냄
+- 랜덤함수를 사용할때 범위를 지정하기위해서 `%`를 사용
+  - 간단한경우는 괜찮음
+  - 정밀한 데이터를 요구하면 안좋음
+
+___
+
+**`<cstdlib>` 라이브러리를 이용하여 난수 만들기**
+
+```cpp
+#include <iostream>
+#include <cstdlib> // std::rand(), std::srand()
+
+using namespace std;
+
+int main()
+{
+	std::srand(5323);
+
+	for (int count = 1; count <= 100; ++count)
+	{
+		cout << std::rand() << "\t";
+
+		if (count % 5 == 0) cout << endl;
+
+	}
+	
+	return 0;
+}
+```
+
+- srand와 rand의 차이
+  - s는 seed라는 뜻임
+- 시드넘버가 고정되어있을때는 다른 숫자를 뽑아낼수 없음
+- 디버깅 할때는 오히려 시드넘버를 고정 시켜야함
+
+___
+
+**`<ctime>` 라이브러리의 `std::time()`로 seed 넘버 바꾸기**
+
+```cpp
+#include <iostream>
+#include <cstdlib> // std::rand(), std::srand()
+#include <ctime> // std::time()
+
+using namespace std;
+
+int main()
+{
+	std::srand(static_cast<unsigned int>(std::time(0)));
+
+	for (int count = 1; count <= 100; ++count)
+	{
+		cout << std::rand() << "\t";
+
+		if (count % 5 == 0) cout << endl;
+
+	}
+	
+	return 0;
+}
+```
+
+- time 시간 별로 seed 넘버를 바꿔서 난수를 뽑을 수 있음
+
+___
+
+**지정한 범위의 int 난수를 만들기**
+
+```cpp
+#include <iostream>
+#include <cstdlib> // std::rand(), std::srand()
+#include <ctime> // std::time()
+
+using namespace std;
+
+int getRandomNumber(int min, int max)
+{
+	static const double fraction = 1.0 / (RAND_MAX + 1.0);
+
+	return min + static_cast<int>((max - min + 1) * (std::rand() * fraction));
+
+}
+
+
+int main()
+{
+	std::srand(static_cast<unsigned int>(std::time(0)));
+
+	for (int count = 1; count <= 100; ++count)
+	{
+		cout << getRandomNumber(5, 8) << "\t";
+
+		if (count % 5 == 0) cout << endl;
+
+	}
+	
+	return 0;
+}
+```
+
+- RAND_MAX
+  - 랜덤넘버를 뽑을때 가장 큰 숫자
+
+___
+
+**`rand()` 함수로 난수 만들기**
+
+```cpp
+#include <iostream>
+#include <cstdlib> // std::rand(), std::srand()
+#include <ctime> // std::time()
+
+using namespace std;
+
+int main()
+{
+	std::srand(static_cast<unsigned int>(std::time(0)));
+
+	for (int count = 1; count <= 100; ++count)
+	{
+		cout << rand() % 4 + 5 << "\t";
+
+		if (count % 5 == 0) cout << endl;
+
+	}
+	
+	return 0;
+}
+```
+
+- 5 ~ 8 범위의 난수를 뽑아줌
+- `% 4 `가 작은 범위면 사용해도됨
+- `% 4 `가 큰 범위라면 난수가 특정 숫자로 몰리는 현상이 일어날수도 있음
+- C스타일 난수 뽑는방법임
+
+___
+
+**`<random>` 라이브러리 사용하여 난수 만들기**
+
+```cpp
+#include <iostream>
+#include <cstdlib> // std::rand(), std::srand()
+#include <ctime> // std::time()
+#include <random>
+
+using namespace std;
+
+int main()
+{
+	std::random_device rd;
+	std::mt19937 mesenne(rd()); // create a mesenne twister
+	std::uniform_int_distribution<> dice(1, 6); // 1포함 6이하
+
+	for (int count = 1; count <= 20; ++count)
+		cout << dice(mesenne) << endl;
+
+	return 0;
+}
+```
+
+- C++ 11 부터 들어옴
+- 시간에 맞춰 난수를 뽑던걸 device를 제공해줌 
+- `std::mt19937_64;` 
+  - std난수를 만들어주는 알고리즘임
+  - `_64` 64비트 난수를 생성해줌
+  - `_64` 를 안붙여주면 32비트 짜리를 생성해줌
+- `uniform_int_distribution`
+  - 노말 distribution, 포화 distribution 등등 있음
+- 1 포함 6 이하 까지 동일한 확률로 난수를 생성해줌
+
+**동작 구조**
+- 랜덤디바이스 만듬
+- 랜덤디바이스를 넣어서 생성기를 만듬
+- 생성기가 어떤 분포를 따르지를 지정
+- 사용할 분포를 만듬
+- 분포가 생성기로 난수를 만듬
+
+### **🌱 5.10 std::cin 더 잘 쓰기**
+
+
+- ignire(), clear(), fail()
+- cin은 콘솔에서 텍스트입력을 받을떄 이용하게 사용됨
+  - cin에 의도하지 않은 입력이 들어왔을때 대응방법
+
+___
+
+**원본 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int getInt()
+{
+	cout << "Enter an integer number :";
+	int x;
+	cin >> x;
+
+	return x;
+}
+
+char getOperator()
+{
+	while (true)
+	{
+		cout << "Enter an operator (+,-) : "; // T0D0: more operators *, / etc.
+		char op;
+		cin >> op;
+
+		return op;
+	}
+}
+
+void printResult(int x, char op, int y)
+{
+	if (op == '+') cout << x + y << endl;
+	else if (op == '-') cout << x - y << endl;
+	else
+	{
+		cout << "Invalid operator" << endl;
+	}
+
+}
+
+
+int main()
+{
+	int x = getInt();
+	char op = getOperator();
+	int y = getInt();
+
+	printResult(x, op, y);
+
+	return 0;
+}
+```
+
+**문제점 :** 한번에 두개의 입력을 줬을때 문제가 생김 
+
+
+___
+
+**입력 개선 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int getInt()
+{
+	cout << "Enter an integer number :";
+	int x;
+	cin >> x;
+	std::cin.ignore(32767, '\n');
+
+	return x;
+}
+
+char getOperator()
+{
+	while (true)
+	{
+		cout << "Enter an operator (+,-) : "; // T0D0: more operators *, / etc.
+		char op;
+		cin >> op;
+		std::cin.ignore(32767, '\n');
+
+		return op;
+	}
+}
+
+void printResult(int x, char op, int y)
+{
+	if (op == '+') cout << x + y << endl;
+	else if (op == '-') cout << x - y << endl;
+	else
+	{
+		cout << "Invalid operator" << endl;
+	}
+
+}
+
+
+int main()
+{
+	int x = getInt();
+	char op = getOperator();
+	int y = getInt();
+
+	printResult(x, op, y);
+
+	return 0;
+}
+```
+
+- cin에서는 사용자의 입력을 버퍼에 담아놓고 x,y에 넣도록 보내주도록 되어있음
+- 한번에 두개의 입력을 받으면 하나씩 버퍼에 담아줌
+- 버퍼를 지우는 방법
+  - `std::cin.ignore(32767, '\n');` 를넣어주면 첫번쨰 버퍼이외의 나머지를 지워줌
+  - 32767은 적당히 큰숫자임
+
+**문제점 :** 연산자에 `+`,`-` 이외의 다른걸 넣었을때 문제가 생김
+
+___
+
+**연산자 입력 개선 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int getInt()
+{
+	cout << "Enter an integer number :";
+	int x;
+	cin >> x;
+	std::cin.ignore(32767, '\n');
+
+	return x;
+}
+
+char getOperator()
+{
+	while (true)
+	{
+		cout << "Enter an operator (+,-) : "; // T0D0: more operators *, / etc.
+		char op;
+		cin >> op;
+		std::cin.ignore(32767, '\n');
+
+		if (op == '+' || op == '-')
+			return op;
+		else
+			cout << "Invaild operator, please try again" << endl;
+	}
+}
+
+void printResult(int x, char op, int y)
+{
+	if (op == '+') cout << x + y << endl;
+	else if (op == '-') cout << x - y << endl;
+	else
+	{
+		cout << "Invalid operator" << endl;
+	}
+
+}
+
+int main()
+{
+	int x = getInt();
+	char op = getOperator();
+	int y = getInt();
+
+	printResult(x, op, y);
+
+	return 0;
+}
+```
+
+**문제점 :** int 의 범위를 넘어서는 정수를 입력했을때 문제가생김
+
+___
+
+**int 범위를 넘어서는 입력 개선 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int getInt()
+{
+	while (true) 
+	{
+		cout << "Enter an integer number :";
+		int x;
+		cin >> x;
+
+		if (std::cin.fail())
+		{
+			std::cin.clear(); // 버퍼 클리어
+			std::cin.ignore(32767, '\n');
+			cout << "Invalid number, please try again" << endl;
+
+		}
+		else
+		{
+			std::cin.ignore(32767, '\n');
+			return x;
+		}	
+	}
+}
+
+char getOperator()
+{
+	while (true)
+	{
+		cout << "Enter an operator (+,-) : "; // T0D0: more operators *, / etc.
+		char op;
+		cin >> op;
+		std::cin.ignore(32767, '\n');
+
+		if (op == '+' || op == '-')
+			return op;
+		else
+			cout << "Invaild operator, please try again" << endl;
+	}
+}
+
+void printResult(int x, char op, int y)
+{
+	if (op == '+') cout << x + y << endl;
+	else if (op == '-') cout << x - y << endl;
+	else
+	{
+		cout << "Invalid operator" << endl;
+	}
+
+}
+
+int main()
+{
+	int x = getInt();
+	char op = getOperator();
+	int y = getInt();
+
+	printResult(x, op, y);
+
+	return 0;
+}
+```
+
+- `std::cin.fail()` 시 `std::cin.clear();` 로 버퍼를 초기화하고 입력을 다시 받음
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
