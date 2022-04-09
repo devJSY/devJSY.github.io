@@ -623,8 +623,408 @@ int main()
   - `-1` 을 해주는 이유는 마지막꺼는 비교할 대상이 없기 때문에 연산을 안해도 되기 떄문임
 - Index만 바꿔주면 value 는 알아서바뀌기 때문에 굳이 따로 저장안해줘도됨
 
+### **🌱 6.5 정적 다차원 배열**
+
+- 정적 다차원 배열Multi-dimensional array
+- 컴퓨터속 메모리는 일차원적인 주소 공간을 가짐
+
+___
+
+**정적 다차원 배열 예제 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int num_rows = 3;
+	const int num_colnums = 5;
+
+	for (int row = 0; row < num_rows; ++row)
+	{
+		for (int col = 0; col < num_colnums; ++col)
+			cout << '[' << row << ']' << '[' << col << ']' << '\t';
+
+		cout << endl;
+
+	}
+
+	cout << endl;
+
+	return 0;
+}
+```
+
+- 세로 - column
+- 가로 - row
+- 이미지 처리, 딥러닝에 자주 사용됨
+
+___
+
+**다차원배열 선언 방법**
+
+```cpp
+	// 1
+	int array[num_rows][num_colnums]; // row-major <-> column-major
+	array[0][0] = 1;
+	array[0][1] = 2;
+
+	// 2
+	int array[num_rows][num_colnums] =
+	{
+		{1,2,3,4,5}, // row 0
+		{6,7,8,9,10}, // row 1
+		{11,12,13,14,15} // row 2
+	};
+
+	// 3 copy initializing 
+	int array[num_rows][num_colnums] 
+	{
+		{1,2,3,4,5}, // row 0
+		{6,7,8,9,10}, // row 1
+		{11,12,13,14,15} // row 2
+	};
+```
+
+- `#3` C++ 11 이후 컴파일러에서만 사용가능
+
+**초기화값 안넣어주기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int num_rows = 3;
+	const int num_colnums = 5;
+
+	int array[num_rows][num_colnums] 
+	{
+		{1,2,}, // 1,2,0,0,0
+		{6,7,8,9,10}, // row 1
+		{11,12,13,14,15} // row 2
+	};
+
+	for (int row = 0; row < num_rows; ++row)
+	{
+		for (int col = 0; col < num_colnums; ++col)
+			cout << array[row][col] << '\t';
+
+		cout << endl;
+
+	}
+
+	return 0;
+}
+```
+
+- `{1,2,}` 초기화를 안해주면 0값으로 자동으로 들어감
+
+**rows 생략**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int num_rows = 3;
+	const int num_colnums = 5;
+
+	int array[][num_colnums] 
+	{
+		{1,2,}, // row 0
+		{6,7,8,9,10}, // row 1
+		{11,12,13,14,15}, // row 2
+	};
+
+	for (int row = 0; row < num_rows; ++row)
+	{
+		for (int col = 0; col < num_colnums; ++col)
+			cout << array[row][col] << '\t';
+
+		cout << endl;
+
+	}
+
+	return 0;
+}
+```
+
+- `int array[][num_colnums]`  num_rows는 생략할 수 있음
+- `{}` 에서 선언 했기 때문에 컴파일러가 알아서 세줌
+- `num_colnums` 는 생략안됨
+- 나중에 동적 할당 때 포인터로 array를 넣음
+
+**전부 0으로 초기화**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int num_rows = 3;
+	const int num_colnums = 5;
+
+	int array[num_rows][num_colnums] = {0};
+
+
+	for (int row = 0; row < num_rows; ++row)
+	{
+		for (int col = 0; col < num_colnums; ++col)
+			cout << array[row][col] << '\t';
+
+		cout << endl;
+
+	}
+
+	return 0;
+}
+```
+___
+
+**다차원 배열 출력하기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int num_rows = 3;
+	const int num_colnums = 5;
+
+	int array[num_rows][num_colnums] 
+	{
+		{1,2,3,4,5}, // row 0
+		{6,7,8,9,10}, // row 1
+		{11,12,13,14,15} // row 2
+	};
+
+	for (int row = 0; row < num_rows; ++row)
+	{
+		for (int col = 0; col < num_colnums; ++col)
+			cout << array[row][col] << '\t';
+
+		cout << endl;
+
+	}
+
+	return 0;
+}
+```
+
+___
+
+**다차원 배열의 메모리 주소**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int num_rows = 3;
+	const int num_colnums = 5;
+
+	int array[num_rows][num_colnums] 
+	{
+		{1,2,3,4,5}, // row 0
+		{6,7,8,9,10}, // row 1
+		{11,12,13,14,15} // row 2
+	};
+
+	for (int row = 0; row < num_rows; ++row)
+	{
+		for (int col = 0; col < num_colnums; ++col)
+			cout << int(& array[row][col]) << '\t';
+
+		cout << endl;
+
+	}
+
+	return 0;
+}
+```
+
+- 메모리가 4byte 단위로 쭉 이어임
+- 메모리가 일자로 쭉 나열되어 있음
+- 일제로는 일차원임
+- 동적할당시 유용함
+
+___
+
+**3차원 array**
+
+```cpp
+int array[5][4][3];
+```
+
+- 딥러닝 에서 다차원배열로 텐서를 표현함
+- 2차원 array 는 행렬임
+  - 컴퓨터 시뮬레이션
+  - 그래픽스
+
+### **🌱 6.6 C언어 스타일의 배열 문자열**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	char myString[] = "string"; // 7칸
+	for (int i = 0; i < 7; ++i)
+	{
+		cout << (int)myString[i] << endl;
+	}
+
+	cout << sizeof(myString) / sizeof(myString[0]) << endl; // 7
+
+	return 0;
+}
+```
+
+- string 문자가 6글자인데 7개의 메모리를 잡아먹는 이유
+- 문자열이 마지막이라는 null char가 들어가있음
+  - `\0` 이 문자열끝에 들어가있어서 7칸임
+
+___
+
+**cin으로 입력받고 cout으로 출력하기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	char myString[255];
+
+	cin >> myString;
+
+	myString[0] = 'A'; // 첫번째 문자 A로 강제 변경
+
+	cout << myString << endl;
+
+	return 0;
+}
+```
+
+- 배열하고 똑같은 방식으로 처리함
+- 다만 데이터타입이 문자형
+
+___
+
+**cout의 성질**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	char myString[255];
+
+	cin >> myString;
+
+	myString[5] = '\0'; 
+
+	cout << myString << endl;
+
+	return 0;
+}
+```
+
+- 5 이후의 문자는 짤림
+- cout 이 문자열을 출력한다는 개념이아니고 `'\0'` 이 나올때까지 출력함 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### **🌱 **
 
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
 
 # 😊 배우게 된 점
 
