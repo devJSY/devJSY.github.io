@@ -951,60 +951,424 @@ int main()
 - 5 이후의 문자는 짤림
 - cout 이 문자열을 출력한다는 개념이아니고 `'\0'` 이 나올때까지 출력함 
 
+___
+
+**cin 빈칸입력받고 출력하기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	char myString[255];
+
+	cin.getline(myString, 255);
+
+	cout << myString;
+
+	return 0;
+}
+```
+
+- geline() 으로 입력받고 출력할 수 있음
+- 빈칸과 `\0` 은 다름
+
+___
+
+**빈칸의 아스키코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	char myString[255];
+
+	cin.getline(myString, 255);
+
+	
+
+	int ix = 0;
+
+	while (true)
+	{
+		if (myString[ix] == '\0') break;
+
+		cout << myString[ix] << " " << int(myString[ix]) << endl;
+		++ix;
+	}
+
+	return 0;
+}
+```
+
+- 입력받은 라인과 해당하는 아스키코드를 보여주는 코드임
+- 빈칸은 **아스키코드 32번**인걸 확인할 수 있음
+
+___
+
+**`strcpy()` 로 배열 복사**
+
+```cpp
+#include <iostream>
+#include <cstring>
+#pragma warning(disable:4996)
+
+using namespace std;
+
+int main()
+{
+	char source[] = "Copy this!";
+	char dest[50];
+	strcpy(dest, source);
+
+	cout << source << endl;
+	cout << dest << endl;
+
+	return 0;
+}
+```
+
+- `char *` 은 포인터임
+- 원본은 바꾸지않고 복사하는 함수임
+- `#pragma warning(disable:4996)` c++ 내부적으로 위험하다고 에러가떠서 이구문으로 에러를 무시처리하였음
+- `strcpy()` 가 위험한 이유
+  - 메모리를 침범해서 런타임 에러가 발생할 수 있음
+___
+
+**`strcpy_s()` 로 배열 복사**
+
+```cpp
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int main()
+{
+	char source[] = "Copy this!";
+	char dest[50];
+	strcpy_s(dest, 50, source); 
+
+	cout << source << endl;
+	cout << dest << endl;
+
+	return 0;
+}
+```
+
+- `#pragma warning(disable:4996)`  를 사용하지않고 에러가 안뜨게끔 수정한 코드
+- 함수의 인수값중 가운데 `50` 값은 최대 메모리를 복사할수있는 메모리사이즈를 적어주는것
+
+___
+
+**`strcat()`**
+
+```cpp
+#include <iostream>
+#include <cstring>
+#pragma warning(disable:4996)
+
+using namespace std;
+
+int main()
+{
+	char source[] = "Copy this!";
+	char dest[50];
+	strcpy_s(dest, 50, source); 
+
+	strcat(dest, source);
+
+	cout << source << endl;
+	cout << dest << endl;
+
+	return 0;
+}
+```
+
+- strcpy_s 에서 문자를 한번 복사하고 strcat으로 문자열을 한번더 붙여줌
+- 한문자열 뒤에다가 어떤 문자열을 붙여주는 것
+
+___
+
+**`strcmp()`**
+
+```cpp
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int main()
+{
+	char source[] = "Copy this!";
+	char dest[50];
+	strcpy_s(dest, 50, source); 
+
+	cout << strcmp(source, dest) << endl;
+
+	return 0;
+}
+```
+
+- strcmp - string  compare 
+- 같으면 `0` 을 반환 
+- 다르면 `-1`을 반환
+- 실전에선 `std:string`을 많이사용함
+
+### **🌱 6.7 포인터의 기본적인 사용법**
+
+- 지역 변수는 스택 메모리를 사용
+- 동적 할당 메모리는 힙 메모리를 사용
+- `int x = 5;`  변수를 선언한다는건 변수가 사용할 메모리공간을 os로부터 빌려옴 그 메모리공간에 5 라는 값을 복사해서 넣는 것임
+- 큰 메모리에 저장되어 있는 데이터 중에서 일부분을 cpu가 사용하기 위하여 메모리로부터 가져올 때는 메모리 전체를 모두 뒤지면서 찾는 것이 아니라 필요한 데이터가 저장되어 있는 주소를 사용하여 직접 접근하여 가져옴
+- `&` address-of operator 
+	- 메모리 주소 출력 연산자
+	- 기본 16진수로출력, 캐스팅해서 바꿀수 있음
+- 메모리 주소를 담는 변수를 포인터라고함
+- `*` de-reference operator 
+- 포인터는 reference의 일부임
+- C++에서는 reference 와 포인터가 있음
+- de-reference는, 포인터가 "저쪽 주소에 가면 이데이터가 있어요" 라고 간접적으로 가리키기만 하는것에 대해서, "그럼 거기에 진짜 뭐가 있는지 내가 들여다볼께" 라며 직접적으로 접근하겠다는 의미임
+
+___
+
+**메모리 주소의 value**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+
+	cout << *&x << endl;
+
+	return 0;
+}
+```
+
+- 메모리 주소에 담겨있는 실제 값을 보여줌
+- 메모리 주소를 갖고오고 메모리의 위치로가서 값을 가져온 것임
+
+___
+
+**포인터:** 메모리 주소를 담는 변수임
+- 포인터도 데이터형은 갖고있음
+
+**포인터 기본 문법**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+	int* ptr_x; 
+	ptr_x = &x; // int* ptr_x = &x;
+
+	cout << *&x << endl;
+
+	return 0;
+}
+```
+
+- `*` 는 파라메타로 넣어줄때는 양쪽을띄우기
+- 보통은 변수명앞에 `*` 을 많이 붙임
+
+___
+
+**포인터 초기화시 주의사항**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+	
+	typedef int* pint;
+	int *ptr_x = &x, ptr_y = &x; // 1
+	pint ptr_x = &x, ptr_y = &x; // 2
+
+	return 0;
+}
+```
+
+- 1의 ptr_y 는 포인터가 아님
+- `*ptr_y = &x;` 이런식으로 지정해줘야 포인터 변수임
+- 대부분 typedef 보다는 각각 포인터 선언해줌
+- 포인터 변수명앞에 `*` 붙이기
+- 두번쨰,세번째... 포인터 선언시 `*` 붙여주기
+
+___
+
+**함수 포인터 선언**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int* dosomething(int* ptr_a)
+{
+	return nullptr;
+}
+
+int main()
+{
+	int x = 5;
+	
+	int *ptr_x = &x, * ptr_y = &x;
 
 
+	return 0;
+}
+```
+
+- 함수의 리턴값, 파라메타로 포인터 설정 가능
+
+___
+
+**포인터 찍어보기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+	
+	int *ptr_x = &x, * ptr_y = &x;
+
+	cout << ptr_x << endl; // 010FFCA4
+	cout << *ptr_x << endl; // 5
+
+	return 0;
+}
+```
+
+- 포인터에 저장되는건 **변수의 주소**임
+- 포인터가 데이터 타입을 알아야하는 이유는 de-reference 할때 어떤 자료형으로 가져올지 헷갈리니까 지정해주는 것
+- 배열에 데이터가 파라메타로 넣어주면 전부 복사가됨 
+  - 포인터로 첫번째 주소와 몇개의 데이터인지 알려줌
+- 변수를 그자체로 사용할때 포인터 주소로 보내면 더 좋음
+- 다른언어도 내부적으로 포인터를 사용함 
+- 타입이 다른 변수를 포인터에 넣을순 없음
+- 포인터를 사용자정의 자료형에도 사용할 수 있음
+- 직접적으로 메모리주소를 변수에 넣을순없음
+
+___
+
+**`<typeinfo>`로 포인터 찍어보기**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+	double d = 123.;
+
+	int* ptr_x = &x;
+
+	cout << typeid(ptr_x).name() << endl; // 5
+
+	return 0;
+}
+```
+
+- gcc 에서는 다르게나옴
+  - pi
+    - pointer to id 의 약자
+
+___
+
+**포인터의 사이즈**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+using namespace std;
+
+struct Something
+{
+	int a, b, c, d;
+};
+
+int main()
+{
+	int x = 5;
+	double d = 123.0;
+
+	int* ptr_x;
+	double *ptr_d;
+
+	cout << sizeof(x) << endl; // 4
+	cout << sizeof(d) << endl; // 8
+	cout << sizeof(&d) << " " << sizeof(ptr_x)<< endl; // 8
+	cout << sizeof(&d) << " "<< sizeof(ptr_d) <<endl; // 8
+
+	Something ss;
+	Something* ptr_s;
+
+	cout << sizeof(Something) << endl; // 16
+	cout << sizeof(ptr_s) << endl; // 8
 
 
+	return 0;
+}
+```
 
+- 포인터 자체사이즈는 고정임
+  - 모든 타입에 대해서 사이즈가 동일함
 
+- 주소는 int던 double던 4byte임
+  - 32비트 기준임
+- 64비트에서는 주소를 더 길게사용하기 떄문에 8byte로 뜸
 
+___
 
+**주의사항**
 
+```cpp
+#include <iostream>
+#include <typeinfo>
 
+using namespace std;
 
+int main()
+{
+	int x = 5;
+	double d = 123.0;
 
+	int *ptr_x;
+	double *ptr_d;
 
+	cout << *ptr_x << endl; // Error
 
+	return 0;
+}
+```
 
+- ptr_x 를 초기화하지않고 주소를 접근하라고하니 에러가 발생함
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### **🌱 **
 
 ### **🌱 **
 
