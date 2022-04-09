@@ -1370,11 +1370,427 @@ int main()
 - ptr_x 를 초기화하지않고 주소를 접근하라고하니 에러가 발생함
 
 
-### **🌱 **
+### **🌱 6.7a Null Pointer**
 
-### **🌱 **
+- 쓰레기 주소값이 들어간경우 de-reference 실행하게되면 엉뚱한곳에가서 데이터를 찾게되기 때문에 os에서 에러가 뜸
 
-### **🌱 **
+___
+
+**Null 포인터 초기화 방법**
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+using namespace std;
+
+int main()
+{
+	double *ptr = 0; // c-style
+	double *ptr = NULL; 
+	double *ptr = nullptr; // modern c++ 
+	double *ptr {nullptr};
+	double *ptr {0};
+
+	if (ptr != nullptr)
+	{
+		// do something useful
+	}
+	else
+	{
+		// do nothing with ptr
+	}
+
+	return 0;
+}
+```
+
+-  변수와 동일하게 유니폼 이니셜라이징 도 가능함
+-  nullptr 로 적어주는게 좋음
+
+___
+
+**Null ptr 확인 함수**
+
+```cpp
+#include <iostream>
+#include <cstddef>
+
+using namespace std;
+
+void dosomething(double* ptr)
+{
+
+	if (ptr != nullptr)
+	{
+		// do something useful
+		cout << *ptr << endl;
+	}
+	else
+	{
+		// do nothing with ptr
+		cout << "Null ptr, do something" << endl;
+	}
+}
+
+int main()
+{
+
+	double *ptr = nullptr; // modern c++ 
+
+	dosomething(ptr); // Null ptr, do something
+	dosomething(nullptr); // Null ptr, do something
+
+	double d = 123.4;
+
+	dosomething(&d); // 123.4
+
+	ptr = &d;
+
+	dosomething(ptr); // 123.4
+
+	std::nullptr_t nptr; // null ptr 
+
+
+	return 0;
+}
+```
+
+___
+
+- `#include <cstddef>` 라이브러리의 `std::nullptr_t nptr;` null ptr를 넣을 때 사용함
+
+___
+
+**파라메타의 메모리 주소**
+
+```cpp
+#include <iostream>
+#include <cstddef>
+
+using namespace std;
+
+void dosomething(double *ptr)
+{
+	cout << "address of pointer in dosomething() " << &ptr << endl; // 012FFD28
+
+
+	if (ptr != nullptr)
+	{
+		// do something useful
+		cout << *ptr << endl;
+	}
+	else
+	{
+		// do nothing with ptr
+		cout << "Null ptr, do something" << endl;
+	}
+}
+
+int main()
+{
+
+	double *ptr = nullptr; // modern c++ 
+
+	dosomething(ptr); // Null ptr, do something
+	dosomething(nullptr); // Null ptr, do something
+
+	double d = 123.4;
+
+	dosomething(&d); // 123.4
+
+	ptr = &d;
+
+	dosomething(ptr); // 123.4
+
+	cout << "address of pointer in main() " << &ptr << endl; // 012FFD3C
+
+
+	return 0;
+}
+```
+
+- main 함수와 dosomething함수의 `&ptr`의 주소는 **서로 다름**
+- dosomething함수의 파라메타로 넘어오는 변수는 **다시 선언되고** 파라메타로 들어오는값이 복사가 되어 다른 메모리를 갖는것임
+
+### **🌱 6.8 포인터와 정적 배열**
+
+- 포인터와 배열의 성질은 둘다 같음
+
+```cpp
+#include <iostream>
+#include <cstddef>
+
+using namespace std;
+
+int main()
+{
+	int array[5] = { 9,7,5,3,1 };
+
+	cout << array[0] << endl; // 9
+	cout << array << endl; // array의 첫번째 주소 00B8FA14
+	cout << &array[0] << endl; // array의 첫번째 주소 00B8FA14
+	
+	cout << *array << endl; // 9
+
+	char name[] = "jack jack";
+	cout << *name << endl; // j
+
+	int * ptr = array;
+	cout << ptr << endl; // 00B8FA14 &ptr 자체주소는 다름
+	cout << *ptr << endl; // 9
+
+	return 0;
+}
+```
+
+- `cout << array << endl` 에서 array는 배열이아니고 **포인터**임
+  - 첫번째 byte의 주소를 담음 
+- 포인터는 주소를담음 
+- 적정 array == 포인터 이다.
+
+___
+
+**포인터의 사이즈**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+//void printArray(int array[]) 아래와 동일함
+void printArray(int *array)
+{
+	cout << sizeof(array) << endl; // 4
+	cout << *array << endl; // 9
+
+	*array = 100;
+}
+
+
+
+int main()
+{
+	int array[5] = { 9,7,5,3,1 };
+
+	cout << sizeof(array) << endl; // 배열 전체의 사이즈 20
+
+	int * ptr = array;
+
+	cout << sizeof(ptr) << endl; // 포인터의 사이즈 4
+
+	printArray(array); 
+
+	cout << array[0] << " " << *array << endl; // 100 100
+
+	return 0;
+}
+```
+
+- 포인터 변수 자체의 사이즈 4
+  - 64비트에서는 8
+- `int arry[]` 가 내부적으로 포인터이기 때문에 포인터의 사이즈인 4가 출력되는 것
+- 함수 안에서 `*array = 100;` 라고 정의하면 함수밖 array에도 100값이 적용이됨
+  - c++ 에서는 레퍼런스를 더 많이 사용함
+  - C에서 많이 사용함
+
+___
+
+**pointer Arithmetic**
+
+```cpp
+int main()
+{
+	int array[5] = { 9,7,5,3,1 };
+
+	cout << sizeof(array) << endl; // 배열 전체의 사이즈 20
+
+	int * ptr = array;
+
+	cout << *ptr << " " <<  * (ptr + 1) << endl; // 9 7
+
+	return 0;
+}
+```
+
+- 포인터에 연산을해서 `ptr +1` 이런식으로 다음 배열값을 가져올 수 있음
+- pointer Arithmetic 이라고함
+
+___
+
+
+**구조체 파라메타**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+struct MyStruct 
+{
+	int array[5] = { 9,7,5,3,1 };
+};
+
+void dosomething(MyStruct ms)
+{
+	cout << sizeof(ms.array) << endl; // 20
+}
+
+int main()
+{
+	MyStruct ms;
+
+	cout << ms.array[0] << endl; // 9
+	cout << sizeof(ms.array) << endl; // 20
+	dosomething(ms);
+
+
+	return 0;
+}
+```
+- 배열 자체가 파라메타로 감
+- 배열의 값인 20이 출력됨
+
+**포인터로 강제 전환**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+struct MyStruct 
+{
+	int array[5] = { 9,7,5,3,1 };
+};
+
+void dosomething(MyStruct *ms)
+{
+	cout << sizeof(( * ms).array) << endl; // 20
+}
+
+int main()
+{
+	MyStruct ms;
+
+	cout << ms.array[0] << endl; // 9
+	cout << sizeof(ms.array) << endl; // 20
+	dosomething(&ms);
+
+
+	return 0;
+}
+```
+
+- 결과값은 똑같음
+- 구조체나 클래스 안에있을때는 포인터로 강제 변환되지않고 배열자체가 감
+- 배열을 포인터로 다 접근할 수 있음
+
+### **🌱 6.9 포인터 연산과 배열 인덱싱**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int value = 7;
+	int* ptr = &value;
+
+	cout << uintptr_t(ptr -1) << endl; // 16579104
+	cout << uintptr_t(ptr) << endl; // 16579108
+	cout << uintptr_t(ptr +1) << endl; // 16579112
+	cout << uintptr_t(ptr +2) << endl; // 16579116
+	
+	return 0;
+}
+```
+
+- 언사인드인티저 포인트 타입
+- unsigned int point type
+- 데이터 타입의 맞춰서 한칸식 이동함
+  - double 타입이면 8 씩 이동함
+
+**포인터에 데이터 타입을 넣어주는 이유**
+1. `de-reference` 할때 어떤 데이터형으로 가져올지 정해주는것
+2. 포인터 연산 할때 몇 byte인지 정해주기위해 
+
+___
+
+**배열의 메모리 찍어보기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int array[] = { 9,7,5,3,1 };
+
+	cout << array[0] << " " << (uintptr_t) & array[0] << endl;
+	cout << array[1] << " " << (uintptr_t) & array[1] << endl;
+	cout << array[2] << " " << (uintptr_t) & array[2] << endl;
+	cout << array[3] << " " << (uintptr_t) & array[3] << endl;
+	
+	for (int i = 0; i < 5; ++i)
+		cout << array[i] << " " << (uintptr_t) & array[i] << endl;
+	
+	return 0;
+}
+```
+
+- 배열의 메모리는 한줄로 나열되어 있음
+
+___
+
+**포인터로 배열의 메모리 찍어보기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int array[] = { 9,7,5,3,1 };
+
+	int *ptr = array;
+
+	for (int i = 0; i < 5; ++i)
+		cout << *(ptr + i) << " " << (uintptr_t)(ptr + i) << endl;
+
+	return 0;
+}
+```
+
+___
+
+**포인터로 문자열 출력**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	char name[] = "jack jack";
+	const int n_name = sizeof(name) / sizeof(name[0]);
+
+	char * ptr = name;
+
+	for (int i = 0; i < n_name; ++i)
+	{
+		cout << *(ptr + i);
+	}
+		
+	return 0;
+}
+```
+
+- `jack jack\0` 출력됨
+
 
 ### **🌱 **
 
