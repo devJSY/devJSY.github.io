@@ -2490,15 +2490,751 @@ int main()
 
 - 포인터를 변수의 주소값과 value 를 바라볼수있는 하나의 **변수** 라고 생각하니까 이해하기 쉬웠음
 
-### **🌱 6.14**
+### **🌱 6.14 참조 변수 reference variable**
 
-### **🌱 6.15**
+- 특정한 경우에 포인터보다 사용하기 편함
 
-### **🌱 6.16**
+**reference 기본 문법**
 
-### **🌱 6.17**
+```cpp
+#include <iostream>
 
-### **🌱 6.18**
+using namespace std;
+
+int main()
+{
+	int value = 5;
+
+	int* ptr = nullptr;
+	ptr = &value;
+
+	int& ref = value; // *ptr = 10
+
+	ref = 10;
+
+	cout << value << " " << ref << endl; // 10 10
+
+
+	return 0;
+}
+```
+
+- `int& ref = value;` ref가 value과 같은 메모리를 같이 사용하는 것처럼 동작함
+- 참조는 value라는 변수의 별명처럼 사용할 수 있음
+
+___
+
+**주소 찍어보기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int value = 5;
+
+	int* ptr = nullptr;
+	ptr = &value;
+
+	int& ref = value; // *ptr = 10
+	
+	cout << &value << endl; // 00CFFC3C
+	cout << &ref << endl; // 00CFFC3C
+	cout << ptr << endl; // 00CFFC3C
+	cout << &ptr << endl; // 00CFFC38
+
+	return 0;
+}
+```
+
+- 참조변수가 별도의 주소는 갖는게아닌 같은 주소를 가짐
+
+___
+
+**주의사항**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int value = 5;
+
+	int& ref; // 1 Error
+	int& ref = 104; // 2 Error
+
+	return 0;
+}
+```
+- `#1` reference는 반드시 초기화 되야함
+- `#2` 리터럴(104) 은 메모리에 공식적으로 메모리를 갖지못하고 변수에 담을수 있음
+
+**reference const**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+
+	int& ref = x;
+
+	const int y = 8;
+	int& ref = y; // 1 Error
+	const int& ref = y; // 가능
+
+	return 0;
+}
+```
+
+- `#1` ref에서 값을 바꿔버릴수 있으니 컴파일이 안됨
+
+___
+
+**re-reference**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int value1 = 5;
+	int value2 = 10;
+
+	int& ref1 = value1;
+
+	cout << ref1 << endl; // 5
+
+	ref1 = value2;
+
+	cout << ref1 << endl; // 10
+
+	return 0;
+}
+```
+
+- re-reference 도 가능함
+
+___
+
+**reference 함수**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void doSomething(int &n)
+{
+	cout << &n << endl; // 010FFD70
+
+	n = 10;
+	cout << "In doSommething " << n << endl; // 10
+}
+
+int main()
+{
+	int n = 5;
+
+	cout << &n << endl; // 010FFD70
+	cout << n << endl; // 5
+
+	doSomething(n);
+
+	cout << &n << endl; // 010FFD70
+	cout << n << endl; // 10
+
+	return 0;
+}
+```
+
+- reference로 함수의 인수값을 넣어준뒤 함수에서 값을 바꾸면 main 에서도 값이 변경됨
+- 주소가 같음 포인터로 넘길떄는 포인터 변수의 주소는 다름 
+- ref 를 쓰게되면 변수 자체가 넘어감
+  - 포인터로 복사할필요없으니 효율이 더 높음
+
+___
+
+**reference로 입력만 받기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void doSomething(const int &n)
+{
+	cout << &n << endl; // 010FFD70
+
+	n = 10; // error
+	cout << "In doSommething " << n << endl; // 10
+}
+
+int main()
+{
+	int n = 5;
+
+	cout << &n << endl; // 010FFD70
+	cout << n << endl; // 5
+
+	doSomething(n);
+
+	cout << &n << endl; // 010FFD70
+	cout << n << endl; // 10
+
+	return 0;
+}
+```
+
+- 파라메타에 const를 넣으면 입력만 받아오고 수정은 못하게 막아버릴수 있음
+
+___
+
+**파라메터에 배열넣기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void printElements(const int (& arr)[5]) /
+{
+	for (int i = 0; i < 5; i++)
+	{
+		cout << arr[i];
+	}
+	cout << endl;
+}
+
+int main()
+{
+	const int length = 5;
+	int arr[length] = { 1,2,3,4,5 };
+
+	printElements(arr);
+
+	return 0;
+}
+```
+
+- 이런식으로 배열자체를 함수의 파라메타를 넣을 수 있음
+- 배열을 넣을대 엘리먼트수를 꼭 넣어줘야함
+
+___
+
+**reference로 구조체 접근하기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+struct Something
+{
+	int v1;
+	float v2;
+
+};
+
+struct Other
+{
+	Something st;
+};
+
+int main()
+{
+	Other ot;
+
+	ot.st.v1 = 1.0; // 기존 접근 방식
+
+	int& v1 = ot.st.v1;
+	v1 = 1;
+
+
+	return 0;
+}
+```
+
+- 기존 접근방식으로 는 이름을 따라가기도 힘들고 외우기도힘든데
+- 레퍼런스로 지정해두면 사용하기 유용함
+- 여러번 사용할 경우 효율도 더좋음
+
+___
+
+**pointer와 reference**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int value = 5;
+	int* const ptr = &value;
+	int& ref = value;
+
+	*ptr = 10;
+	ref = 10;
+
+	return 0;
+}
+```
+- `#1` 과 `#2`는 기능상 동일함
+- reference도 내부적으로 포인터로 구성되어있음
+
+
+### **🌱 6.15 참조와 const**
+
+- 함수의 파라메터로 사용할때 아주편함
+
+**reference 기본 사용법**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+	int &ref_x = x; 
+
+	return 0;
+}
+```
+- &는 연산자가 아닌 레퍼런스 선언하는 용도로 사용된 것
+
+**case 1**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+	const int &ref_x = x; 
+
+	return 0;
+}
+```
+
+- ref_x 의 값을 못바꾸게 막는 const 임
+
+**case 2**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int x = 5;
+	int &ref_x = x; // Error
+
+	return 0;
+}
+```
+
+- reference 를 하게되면 값을 바꿀수 있기때문에 문법상 Error 처리됨
+
+**case 3**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int x = 5; // 1
+	const int &ref_x = x; // 2 
+
+	const int& ref_2 = ref_x; // 3
+
+	return 0;
+}
+```
+
+- 변수와 reference에 const를 같이 붙여주면 사용 가능함 
+- `#1` , `#2` 의 const 는 생략해도 `#3` 는 사용가능
+
+**case 4**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int &ref_x = 3 + 4; // 1 Error
+	const int& ref_y = 3 + 4; // 2 가능
+
+	cout << ref_y << endl;
+	cout << &ref_y << endl;
+
+	return 0;
+}
+```
+
+- `#1` 기본적으로 reference 에 값을 직접 넣을 순 없음
+- `#2` const를 붙이면 가능함
+  - 주소 출력가능
+  - value도 출력 가능
+
+**함수의 파라메타로 reference로 넣었을때 장점**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void doSomething(const int& x)
+{
+	cout << x << endl;
+}
+
+int main()
+{
+	int a = 1;
+
+	doSomething(a);
+	doSomething(1);
+	doSomething(a + 3);
+	doSomething(3 * 4);
+
+	return 0;
+}
+```
+
+- 포인터로 넣게되면 복사를하게되는데 복사를 안해도됨
+- 함수의 인수값으로 숫자나 연산을 넣을 수 있음
+
+### **🌱 6.16 포인터와 참조의 멤버 선택**
+
+- Member Selection Operators
+
+**struct 나 class 의 멤버 선택 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+struct Person
+{
+	int age;
+	double weight;
+};
+int main()
+{
+	Person person;
+
+	person.age = 5;
+	person.weight = 30;
+
+	// reference
+	Person& ref = person;
+	ref.age = 15;
+
+	// 포인터
+	Person* ptr = &person; 
+	ptr->age = 30;
+	(*ptr).age = 20;
+
+	Person& ref2 = *ptr;
+	ref2.age = 45;
+
+	cout << &person << endl; // 010FFA28
+	cout << &ref2 << endl; // 010FFA28
+
+	return 0;
+}
+```
+
+- `.` **:** Member Selection Operators 
+- `#포인터` 변수 person 포인터의 주소를 넣었다가 de-reference해서 다시 reference 한것의 주소가 같음 
+- (*ptr) 에서 ()를 쳐준이유
+  - `.` 보다 `*` 의 우선순위가 더 높아서
+  - 보통은 포인터나 ref를 많이 씀
+
+### **🌱 6.17 C++ For-each 반복문**
+
+**배열의 value 출력하기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	const int fibonacei[] = { 0,1,1,2,3,5,8,13,21,34,55,89 };
+
+	for (int number : fibonacei)
+		cout << number << "";
+	cout << endl;
+
+
+	return 0;
+}
+```
+
+- fibonacei배열에 있는 값을 한번식 출력해줌
+
+___
+
+**배열의 value 전부 바꾸기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	int fibonacei[] = { 0,1,1,2,3,5,8,13,21,34,55,89 };
+
+	// change array values
+	for (auto& number : fibonacei)
+		number *= 10;
+
+	// output
+	for (const auto number : fibonacei)
+		cout << number << " ";
+	cout << endl;
+
+
+	return 0;
+}
+```
+
+- 함수 파라메타로 들어가는 것과 비슷함
+  - &를 붙여서 변경 가능
+- 보통 auto를 많이 사용함
+
+**배열중 가장큰 값찾기**
+
+```cpp
+#include <iostream>
+#include <limits>
+#include <algorithm>
+
+using namespace std;
+
+
+int main()
+{
+	int fibonacei[] = { 0,1,1,2,3,5,8,13,21,34,55,89 };
+
+	int max_number = std::numeric_limits<int>::lowest();
+
+	for (const auto& n : fibonacei)
+		max_number = std::max(max_number, n);
+
+	cout << max_number << endl;
+
+	return 0;
+}
+```
+
+- for - each 문과 라이브러리로 간단하게 짤수 있음
+___
+
+**vector 맛보기**
+
+```cpp
+#include <iostream>
+#include <limits>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+
+int main()
+{
+	std::vector<int> fibonacei = { 0,1,1,2,3,5,8,13,21,34,55,89 };
+
+	int max_number = std::numeric_limits<int>::lowest();
+
+	for (const auto& n : fibonacei)
+		max_number = std::max(max_number, n);
+
+	cout << max_number << endl;
+
+	return 0;
+}
+```
+
+- 배열을 동적할당을 사용하면 for - each를 사용할 수 없음
+- 동적할당 배열을 아주편하게 사용할수 있게 std에 들어 있는 것
+
+### **🌱 6.18 void 포인터**
+
+- 포인터는 규격화 되어있는 주소를 통해서 모든 타입의 주소를 저장하는 것
+- void pointer, generic pointer 라고도 부름
+
+****
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	int i = 5;
+	float f = 3.0;
+	char c = 'a';
+
+	void* ptr = nullptr;
+
+	ptr = &i;
+	ptr = &f;
+	ptr = &c;
+
+	cout << ptr + 1 << endl; // Error
+
+	// 포인터 연산
+	int* ptr_i = &i;
+
+	cout << ptr_i << endl;
+	cout << ptr_i + 1 << endl;
+
+	return 0;
+}
+```
+
+- 주소 이기떄문에 void pointer 에 주소를 넣는 건 가능함
+- 대신 포인터의 타입을 알수가없음
+  - 즉 포인터 연산 사용이 불가능함
+- `+1` 연산시 데이터자료형을 모르니 몇 byte를 더해야할지 몰라 에러가 발생함
+
+___
+
+**void 포인터의 주소**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	int i = 5;
+	float f = 3.0;
+	char c = 'a';
+
+	void* ptr = nullptr;
+
+	ptr = &i;
+	ptr = &f;
+	/*ptr = &c;*/
+
+	cout << &f << endl; // 00F3F734
+	cout << ptr << endl; // 00F3F734
+
+	return 0;
+}
+```
+
+- 주소는 동일하게 출력됨
+
+___
+
+**void 포인터의 de-reference**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+
+int main()
+{
+	int i = 5;
+	float f = 3.0;
+	char c = 'a';
+
+	void* ptr = nullptr;
+
+	ptr = &i;
+	ptr = &f;
+	/*ptr = &c;*/
+
+	cout << &f << endl; // 00F3F734
+	cout << *ptr << endl; // Error
+	cout << *static_cast<float*>(ptr) << endl; // 3
+	return 0;
+}
+```
+
+- de-reference 는 불가능함
+- 어떤 자료형인지 모르기 때문에 메모리의 2진수를 어떠한 형태로 나열되어있는 건알겠는데 그게 어떤 자료형을 표현할려고 넣어놓은건지 모르기 때문에
+- 데이터를 가져올려면 강제로 캐스팅해야함
+
+___
+
+**enum 과 void pointer 예제**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+enum Type
+{
+	INT,
+	FLOAT,
+	CHAR
+};
+
+int main()
+{
+	int i = 1;
+	float f = 3.0;
+	char c = 'a';
+
+	void* ptr = nullptr;
+
+	ptr = &i;
+	ptr = &f;
+	/*ptr = &c;*/
+
+	Type type = INT;
+
+	if(type == INT)
+		cout << *static_cast<int*>(ptr) << endl; 
+	else if(type == FLOAT)
+		cout << *static_cast<float*>(ptr) << endl; 
+	else if (type == CHAR)
+		cout << *static_cast<char*>(ptr) << endl; 
+
+	return 0;
+}
+```
+
+- 옛날에 사용하던방식
+  - 요즘은 이방식을 보완한 방식이 많이 나옴
+- void pointer는 다형성 구현을 할떄 부득이하게 사용함
 
 ### **🌱 6.19**
 
