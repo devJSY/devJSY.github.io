@@ -3236,11 +3236,557 @@ int main()
   - 요즘은 이방식을 보완한 방식이 많이 나옴
 - void pointer는 다형성 구현을 할떄 부득이하게 사용함
 
-### **🌱 6.19**
+### **🌱 6.19 다중 포인터와 동적 다차원 배열**
 
-### **🌱 6.20**
+**다중 포인터 예시**
 
-### **🌱 6.21**
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int* ptr = nullptr;
+	int** ptrptr = nullptr;
+
+	int value = 5;
+
+	ptr = &value;
+	ptrptr = &ptr;
+
+	cout << ptr << " " << *ptr << " " << &ptr << endl;
+	cout << ptrptr << " " << *ptrptr << " " << &ptrptr << endl;
+	cout << **ptrptr << endl;
+
+	int*** pptr, **** ptr;
+
+	return 0;
+}
+```
+
+___
+
+**2차원 행렬 구현 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int row = 3;
+	const int col = 5;
+
+	const int s2da[row][col] =
+	{
+		{1,2,3,4,5},
+		{6,7,8,9,10},
+		{11,12,13,14,15}
+	};
+
+	int* r1 = new int[col] {1, 2, 3, 4, 5};
+	int* r2 = new int[col] {6, 7, 8, 9, 10};
+	int* r3 = new int[col] {11, 12, 13, 14, 15};
+
+	int** rows = new int* [row]{r1, r2, r3};
+
+	for (int r = 0; r < row; ++r)
+	{
+		for (int c = 0; c < col; ++c)
+			cout << rows[r][c] << " ";
+		cout << endl;
+	}
+
+	delete[] r1;
+	delete[] r2;
+	delete[] r3;
+	delete[] rows;
+
+	return 0;
+}
+```
+
+**개선 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int row = 3;
+	const int col = 5;
+
+	const int s2da[row][col] =
+	{
+		{1,2,3,4,5},
+		{6,7,8,9,10},
+		{11,12,13,14,15}
+	};
+
+	int** matrix = new int* [row];
+
+	for (int r = 0; r < row; ++r)
+		matrix[r] = new int[col];
+
+	for (int r = 0; r < row; ++r)
+		for (int c = 0; c < col; ++c)
+			matrix[r][c] = s2da[r][c];
+
+	// print all elements
+	for (int r = 0; r < row; ++r)
+	{
+		for (int c = 0; c < col; ++c)
+			cout << matrix[r][c] << " ";
+		cout << endl;
+	}
+
+	// delete
+	for (int r = 0; r < row; ++r)
+		delete [] matrix[r];
+
+	delete matrix;
+
+	return 0;
+}
+```
+___
+
+**이중 포인터를 사용하지않고 2차원 행렬 만들기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	const int row = 3;
+	const int col = 5;
+
+	const int s2da[row][col] =
+	{
+		{1,2,3,4,5},
+		{6,7,8,9,10},
+		{11,12,13,14,15}
+	};
+
+	int *matrix = new int[row * col];
+
+	for (int r = 0; r < row; ++r)
+		for (int c = 0; c < col; ++c)
+			matrix[c+ col*r] = s2da[r][c];
+
+	// print all elements
+	for (int r = 0; r < row; ++r)
+	{
+		for (int c = 0; c < col; ++c)
+			cout << matrix[c + col * r] << " ";
+		cout << endl;
+	}
+
+	delete[] matrix;
+
+
+	return 0;
+}
+```
+
+### **🌱 6.20 std::array 소개**
+
+**std::array 기본적인 사용법**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+int main()
+{
+	// int array[5] = { 1,2,3,4,5 }; 기존방식
+
+	std::array<int, 5> my_arr = { 1,2,3,4,5 };
+
+
+	return 0;
+}
+```
+
+- 단점은 숫자가 꼭 들어가줘야함
+  - 그외의 함수로 할수있는 건 대부분은 다 됨
+- 함수 파라메타로 넣을떄 편함
+
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+int main()
+{
+	// int array[5] = { 1,2,3,4,5 };
+
+	std::array<int, 5> my_arr = { 1,2,3,4,5 };
+	my_arr = { 0,1,2,3,4, };
+	my_arr = { 0,1,2, };
+
+	cout << my_arr[10] << endl; // 1
+	cout << my_arr.at(10) << endl; // 2
+
+	return 0;
+}
+```
+
+- 클래스로 사용자정의 데이터로 한번더 감싸준 형태임
+- 요소가 많으면안됨
+  - 요소가 적은건 상관없음
+
+- `#1`,`#2` 의 방식으로 출력해볼수 있음
+- `#2` at이 멤버 펑션 이름임 `()` 로 해줘야함
+
+- `#1` 요소가 넘든 안넘든 체크를 안하고 엑세스함
+- `#2` 미리한번 체크하고 문제가생기면 예외처리를 발동함 
+  - 한번 체크하기 때문에 `#1` 에 비해 약간 느림
+
+___
+
+**배열 원소의 갯수 찾기**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+int main()
+{
+	// int array[5] = { 1,2,3,4,5 };
+
+	std::array<int, 5> my_arr = { 1,2,3,4,5 };
+	my_arr = { 0,1,2,3,4, };
+	my_arr = { 0,1,2, };
+
+	cout << my_arr.size() << endl; // 원소의 갯수
+
+	return 0;
+}
+```
+
+- `my_arr.size()` 로 함수의 원소의 갯수를 찾을수 있음
+
+___
+
+**std::array 함수에 적용하기**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+void printLength(const std::array<int, 5> my_arr)
+{
+	cout << my_arr.size() << endl; 
+}
+
+int main()
+{
+	// int array[5] = { 1,2,3,4,5 };
+
+	std::array<int, 5> my_arr = { 1,2,3,4,5 };
+	my_arr = { 0,1,2,3,4, };
+	my_arr = { 0,1,2, };
+
+	printLength(my_arr);
+	
+	return 0;
+}
+```
+
+- 함수 파라메타로 넣을때 포인터가 아닌 배열그대로 넣을수 있음
+- 함수의 파라메타로 넣을떄 변수가한번 복사되는 것처럼 배열도 한번 복사됨 
+  - 배열의 크기가 커지면 복사하는 시간도 길어짐
+  - const 사용가능 
+  - 래퍼런스로 하면 복사를안해도되서 속도를 줄일수 있음	
+
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+int main()
+{
+	
+	std::array<int, 5> my_arr = { 1,21,3,40,5 };
+	
+	for (auto element : my_arr)
+		cout << element << " ";
+	cout << endl;
+
+
+	return 0;
+}
+```
+
+___
+
+**라이브러리로 선택정렬**
+
+```cpp
+#include <iostream>
+#include <array>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+	
+	std::array<int, 5> my_arr = { 1,21,3,40,5 };
+	
+	for (auto element : my_arr)
+		cout << element << " ";
+	cout << endl;
+
+	std::sort(my_arr.begin(), my_arr.end());
+
+	for (auto element : my_arr)
+		cout << element << " ";
+	cout << endl;
+
+	return 0;
+}
+```
+
+- `begin()` 처음부터 `end()` 끝까지
+- `#include <algorithm>` 라이브러리 안에 `sort()` 로 정렬할 수 있음
+
+
+**역순정렬**
+
+```cpp
+#include <iostream>
+#include <array>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+	
+	std::array<int, 5> my_arr = { 1,21,3,40,5 };
+	
+	for (auto element : my_arr)
+		cout << element << " ";
+	cout << endl;
+
+	std::sort(my_arr.rbegin(), my_arr.rend());
+
+	for (auto element : my_arr)
+		cout << element << " ";
+	cout << endl;
+
+	return 0;
+}
+```
+
+- `rbegin()` , `rend()` 로 역순 정렬을 간단히 만들수 있음 
+
+### **🌱 6.21 std::vector 소개**
+
+
+```cpp
+#include <iostream>
+//#include <array>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+	// std::array<int, 5> arry;
+	std::vector<int> array;
+	
+	return 0;
+}
+```
+
+- 동적 array를 대체할수 있음
+- 동적할당이 가능한 배열이기떄문에 배열 갯수를 안정해줘도됨
+
+```cpp
+#include <iostream>
+//#include <array>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+	// std::array<int, 5> arry;
+	std::vector<int> array;
+
+	std::vector<int> array2 = { 1,2,3,4,5 };
+
+	cout << array2.size() << endl; // 5
+
+	std::vector<int> array3 = { 1,2,3, };
+
+	cout << array3.size() << endl; // 3
+
+	std::vector<int> array4{ 1,2,3, };
+
+	cout << array4.size() << endl; // 3
+
+	return 0;
+}
+```
+- 사이즈를 바꿀수 있음
+- 유니폼 이니셜라이징도 됨
+
+**vector 와 for-each문으로 배열 출력하기**
+
+```cpp
+#include <iostream>
+//#include <array>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+	int* my_arr = new int[5]; 
+
+	std::vector<int> arr = { 1,2,3,4,5 };
+
+	for (auto& itr : arr)
+		cout << itr << " ";
+	cout << endl;
+
+	cout << arr[1] << endl;
+	cout << arr.at(1) << endl;
+
+	delete[] my_arr;
+
+	return 0;
+}
+```
+
+- 옛날엔 이터레이터를 사용했었음
+- vector의 장점
+  - 메모리를 알아서 지워줌
+  - 블럭,return 밖으로나갈때 알아서 삭제해줌 
+  - 메모리가 세지않음
+  - 자기의 길이를 알아서 기억을해줌
+    - 함수의 파라메타로보내면 자기의 길이를 알고있음
+  - 커패스티,리사이즈,리절브 등 여러가지 유용한 기능을 사용할 수 있음 
+  - 메모리 관리를 유용하게 할수 있음 
+  - 동적 메모리 할당의 장점을 활용할 수 있음
+
+___
+
+**resize()**
+
+```cpp
+#include <iostream>
+//#include <array>
+#include <vector>
+
+using namespace std;
+
+int main()
+{
+	int* my_arr = new int[5];
+
+	std::vector<int> arr = { 1,2,3,4,5 };
+
+	arr.resize(10);
+
+	for (auto& itr : arr)
+		cout << itr << " ";
+	cout << endl;
+
+	cout << arr.size() << endl;
+	cout << arr[1] << endl;
+	cout << arr.at(1) << endl;
+
+	delete[] my_arr;
+
+	return 0;
+}
+```
+
+- 동적할당을 직접 코딩해서만들면 os한테 물어보고 되면 뒤에 붙이고 안된다하면 새로 할당받아 복사해 붙여야함
+- resize() 로 배열의 사이즈를 줄일수도 있음
+  - 뒤에 남는 데이터는 날라감
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 😊 배우게 된 점
 
