@@ -524,15 +524,962 @@ void foo(const int * const ptr)
   - 결국 값에의한 전달이고 지역 변수 인것 처럼 작동하기 때문임 
   - 실수를 방지하기위해 적어놓는 경우가 있음
 
-### **🌱 **
+### **🌱 7.5 다양한 반환 값들 (값,참조,주소,구조체,튜플)**
 
-### **🌱 **
+- Returning Values
+- 반환값을 어떻게 돌려받을 것
 
-### **🌱 **
+**값을 리턴받는 방법**
 
-### **🌱 **
+```cpp
+#include <iostream>
 
-### **🌱 **
+using namespace std;
+
+int getValue(int x)
+{
+	int value = x * 2;
+	return value;
+}
+
+int main()
+{
+	int value = getValue(3);
+	
+	return 0;
+}
+```
+
+- 함수의 리턴값인 6 이 복사해서 value의 들어감
+- 단점으로 값이 여러번복사해서 들어가기떄문에 느려짐
+- 클래스나,구조체를 사용할때 데이터가 많거나,배열을 사용할때 복사가 많이되기 떄문에 문제가됨
+
+___
+
+**포인터로 리턴 받기**
+
+**함수의 리턴값을 de-reference 하여 받기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int* getValue(int x)
+{
+	int value = x * 2;
+	return &value;
+}
+
+int main()
+{
+	int value = *getValue(3);
+	
+	cout << value << endl;
+
+	return 0;
+}
+```
+
+- 함수리턴값을 de-reference 를 해서 받을수 있음
+- 하지만 권장하지않음
+  - 사라질 변수를 de-reference 를 하는게 문제가 될수도 있기 떄문임
+
+
+**함수의 리턴값을 주소로 직접 받기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int* getValue(int x)
+{
+	int value = x * 2;
+	return &value;
+}
+
+int main()
+{
+	int *value = getValue(3);
+	
+	cout << *value << endl;
+
+	return 0;
+}
+```
+
+- 굉장히 위험함
+- 주소를 가지고있는데 이미 사라진 주소임
+- 변수는 사라졌는데 메모리 주소만 갖고있는 상태임
+
+___
+
+**공장 패턴(factory pattern)**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int* allocateMemory(int size)
+{
+	return new int[size];
+}
+
+int main()
+{
+	int* array = new int[10]; // 기본 동적 배열 할당
+
+	int* array = allocateMemory(1024);
+
+  delete[] array;
+
+	return 0;
+}
+```
+
+- 공장 패턴(factory pattern)은 게임팩에서 다룸
+- new가 있으면 delete 가 있어야하는데 delete가 어디서할지 막막함
+- 일반적으로 이런식으로 동적메모리 할당하면 프로그래머에게 힘드므로 비추천
+
+___
+
+**reference로 리턴 받기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int& getValue(int x)
+{
+	int value = x * 2;
+	return value;
+}
+
+
+int main()
+{
+	int value = getValue(5);
+
+	cout << value << endl;
+
+	
+	return 0;
+}
+```
+
+- 레퍼런스를 반환해서 레퍼런스가 가르키고있는 변수의 값이 반환되어 value에 들어감
+- 비교적 안전함
+- `int &value = getValue(5);` 와같이 받는 쪽도 레퍼런스면 문제가 발생할 수 있음
+  - `getvalue()` 에서 반환된값은 사라지는데 사라지는값에대한 레퍼런스를 담으면 문제가 발생할 수 있음
+  - 매우 안좋은 방법임
+  - `const int& getValue(int x)` const를 넣어도 의미가 없음
+
+___
+
+**reference로 배열의 요소 바꾸기**
+
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+int& get(std::array<int, 100>& my_array, int ix)
+{
+	return my_array[ix];
+}
+
+int main()
+{
+	std::array<int, 100> my_array;
+	my_array[30] = 10;
+
+	get(my_array, 30) = 1024;
+
+	cout << my_array[30] << endl; // 1024
+
+	return 0;
+}
+```
+
+- 이런패턴으로 사용하는 경우가 아주 많음
+- 메모리는 어딘가 안전하게 저장되어 있고 레퍼런스만 보내서 바꾸는 방식임
+- 수학 라이브러리 구현시 클래스나 사용자 정의 데이터 형이 수학 식과 비슷하게 코딩이 되도록 구현할떄 많이 사용할 수 있음
+
+___
+
+**여러개의 리턴**
+
+**구조체**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+struct S
+{
+	int a, b, c, d;
+};
+
+S getStruct()
+{	
+	S my_s{1,2,3,4};
+	return my_s;
+}
+
+int main()
+{
+	S my_s = getStruct();
+	cout << my_s.b << endl;
+
+	return 0;
+}
+```
+
+- 여러개로 리턴 받을땐 구조체로 받는게 일반적임
+- 구조체를 통해서 리턴값을 받으면 여러개의 반환값을 받는 효과를 낼수 있음
+- 함수하나를 만들때마다 구조체를 하나씩 만들어야함
+- 다이렉트X 라이브러리
+  - 게임,그래픽스 관련 라이브러리
+  - 내부 구조체가 엄청 많음
+  - 함수 호출할때 구조체의 포인터로 넣고 받을때도 구조체로 받거나 구조체의 포인터로 받거나 하는 경우가 아주 많았음
+
+**튜플**
+
+```cpp
+#include <iostream>
+#include <array>
+#include <tuple>
+
+using namespace std;
+
+std::tuple<int, double> getTuple()
+{
+	int a = 10;
+	double d = 3.14;
+	return std::make_tuple(a, d);
+}
+
+int main()
+{
+	std::tuple<int, double> my_tp = getTuple();
+	cout << std::get<0>(my_tp) << endl; // a
+	cout << std::get<1>(my_tp) << endl; // d
+
+	return 0;
+}
+```
+
+- 리턴 받을 자료형을 적어주기
+- `std::tuple<int, double>`중  자료형에 구조체를 넣을수 있음
+- `std::tuple<int, double>` 자체가 사용자 정의 자료형 처럼 작동함
+
+**C++17 이후 개선된 코드**
+
+```cpp
+#include <iostream>
+#include <array>
+#include <tuple>
+
+using namespace std;
+
+std::tuple<int, double> getTuple()
+{
+	int a = 10;
+	double d = 3.14;
+	return std::make_tuple(a, d);
+}
+
+int main()
+{
+	auto [a, d] = getTuple();
+	cout << a << endl;
+	cout << d << endl;
+
+	return 0;
+}
+```
+
+- a,d 가 변수로 선언되면서 `getTuple()` 의 반환값을 초기화해줌
+
+### **🌱 7.6 인라인 함수**
+
+**inline 기본 문법**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+inline int min(int x, int y)
+{
+	return x > y ? y : x;
+}
+
+int main()
+{
+	cout << min(5, 6) << endl;
+	cout << min(3, 2) << endl;
+
+	// inline part
+	cout << (5 > 6 ? 6 : 5) << endl;
+	cout << (3 > 2 ? 2 : 3) << endl;
+
+	return 0;
+}
+```
+
+- 인라인 함수 Inline Functions
+- 최적화
+- 함수이름 앞에 inline 을 붙여서 사용함
+  - 헤더파일에 함수를 정의할때 많이 사용함
+- 인라인으로 바꾸게되면 함수가 아닌것처럼 작동함
+  - inline part 부분처럼 컴파일이 됨
+  - 컴파일러가 하는 일임
+  - 함수가 호출되거나 복사같은것을 안해도되서 속도가 빨라짐
+- inline 키워드는 강제로 inline 으로 바꾸는게 아닌 권장, 권유 뉘앙스임
+- 모든 함수를 inline으로 바꿔도 다 빨라지는것이아님
+- 최근에는 컴파일러가 알아서 inline 을 적용해주는 경우도 있음 
+- 연구 하는 사람은 코딩테크니컬보다는 소프트웨어의 구조를 바꿈 
+- 객체지향 설계방식, 데이터 드리븐등으로 하드웨어 가속을 잘받는 식으로 캐쉬 미스를 중이는 방식, gpu가속,병렬처리를 해서 최적화를함
+- 컴파일러가 실제로 inline으로 해줄지 안해줄지 알수 없음
+- 컴파일러가 정말 inline으로 구현을 하면 컴파일된 프로그램이 많이 커짐
+
+### **🌱 7.7 함수 오버로딩**
+
+- Function Overloading
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int add(int x, int y)
+{
+	return x + y;
+}
+
+double add(double x, double y)
+{
+	return x + y;
+}
+
+int main()
+{
+	add(1, 2);
+	add(3.0, 4.0);
+
+
+	return 0;
+}
+```
+
+
+- 들어오는 매개변수가 다른데 수행하는 기능이 비슷할때 함수 오버로딩을 할 수있음
+  - 기능이 판이하게 다른경우에도 사용할 수 있음
+
+
+- 주의사항
+- 함수가 서로 다르다 같다는 함수의 이름,매개변수 를 보고 판단함
+- 그것들 중에서 매개변수 타입이 가장 잘 맞는 주어진 인자와 매개변수가 가장 조합이 좋은 함수를 찾아서 컴파일러가 알아서 찾아서 컴파일 해줌
+
+**주의사항**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int add(double x, double y)
+{
+	return x + y;
+}
+
+double add(double x, double y) // Error
+{
+	return x + y;
+}
+
+int main()
+{
+	add(1, 2);
+	add(3.0, 4.0);
+
+
+	return 0;
+}
+```
+
+- 어떤 함수를 사용할지 **컴파일할떄** 결정이 되야함
+- 리턴타입이 달라도 매개변수가 같으면 문제가 생김
+
+___
+
+**함수의 이름이 같은 경우**
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void getRandom(int& x) {}
+void getRandom(double& x) {}
+
+int main()
+{
+	int x;
+	getRandom(x);
+
+	//int x = getRandom(x);
+	//int x = getRandom(int());
+
+	return 0;
+}
+```
+
+- 함수의 이름을 바꾸기
+- 리턴값을 void 로 바꾸기 매개변수의 타입을 reference로 받기
+   - **단점:** 리턴값을 못받으니 얼핏봤을때 리턴으로 값을 가져오는지 입력인지 구분이 안됨 
+
+___
+
+**typedef**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+typedef int my_int;
+
+void print(int x) {}
+void print(my_int x) {} // Error
+
+int main()
+{
+
+	return 0;
+}
+```
+
+- 컴파일러 입장에선 같은 함수로 판단됨
+
+___
+
+**매치가 정확히 안되는 경우**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void print(char* value) {}
+// void print(const char* value) {} 문자열 해결방법
+void print(int value) {}
+
+int main()
+{
+	print(0); // int 로 인식
+	print('a'); // int 로 인식
+	print("sadsa") // Error
+
+	return 0;
+}
+```
+
+- 데이터 타입에 대해서 주의를 해야함
+- 매치를 못찾을때 함수를 못찾는다고 Error 가 발생함
+- 모든타입에 다 정의를해주고 사용할때도 데이터타입을 정리해주는게 좋음
+- 잘맞는게 없어서 억지로 있는것들 중에 가장 가까운걸 맞추는데 잘 안맞았는 경우임
+
+___
+
+**매치가 모호한 경우**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+typedef int my_int;
+
+void print(unsigned int value) {}
+void print(float value) {}
+
+int main()
+{
+	print('a'); // Error 
+	print(0); // Error 
+	print(3.14159); // Error 
+
+  print((unsigned int)'a');
+	print(0u);
+	print(3.14159f);
+
+	return 0;
+}
+```
+
+- 함수 두개중에 어떤걸 선택할지 몰라서 뜨는 에러임
+  - 모호하다는 에러가나옴
+- 함수 오버로딩할떄 명확하게 사용하기 
+
+### **🌱 7.8 매개변수의 기본값**
+
+- Default Parameters
+
+**Default Parameter**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void print(int x = 0)
+{
+	cout << x << endl;
+}
+
+int main()
+{
+	print();
+	
+	return 0;
+}
+```
+
+- 파라메타 값이 안들어왔을때 이값을 넣어주세요라는뜻으로 파라메타에 `= value` 를 넣을 수 있음
+- 디폴트 파라메타, 옵셔널 파라메타, 디폴트 아규먼트 라고도 부름
+
+
+**파라메타 여러개일때 기본값**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void print(int x=10, int y =20, int z = 30)
+{
+	cout << x << " " << y << " " << z << endl;
+}
+
+int main()
+{
+	print();
+	print(100);
+	print(100, 200);
+	print(100, 200, 300);
+
+	return 0;
+}
+```
+
+- 파라메타의 기본값을 넣을때 맨마지막값은 무조건 넣어줘야함
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+void print(int x = 10, int y = 20, int z = 30);
+
+void print(int x=10, int y =20, int z = 30) // Error
+{
+	cout << x << " " << y << " " << z << endl;
+}
+
+int main()
+{
+	print();
+	print(100);
+	print(100, 200);
+	print(100, 200, 300);
+
+	return 0;
+}
+```
+
+- 선언과 정의를 분리할때는 둘중에 하나만 사용할 수 있음
+  - 즉 기본값은 한곳에서만 할수 있음 
+  - 보통은 선언부분에 넣어둠
+
+___
+
+**파라메타 함수 오버로딩**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+void print(std::string str) {}
+void print(char ch = ' '){}
+
+int main()
+{
+	print(); // char
+
+	return 0;
+}
+```
+
+- 빈파라메타를가진 함수와 디폴트 파라메타가 선언된함수 것중에 디폴트 파라메타가 선언된 함수를 선택함
+
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+void print(int x) {} // ambiguous
+void print(int x, int y = 20){}
+
+int main()
+{
+	print(10); // Error
+
+	return 0;
+}
+```
+
+- 뒷쪽 파라메타에 기본값을 넣으면 어떤 함수를 선택해야할지 몰라 컴파일러가 에러를 띄움 
+- 디폴트 파라메타가 함수 오버로딩에도 영향을 줌
+
+### **🌱 7.9 함수 포인터**
+
+- Function Pointers
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int func()
+{
+	return 5;
+}
+int main()
+{
+	cout << func << endl; // 000C1030
+
+	return 0;
+}
+```
+
+- 함수도 포인터 임
+- 함수도 주소를 갖고있다
+- 함수도 메모리에 들어감
+- 메인에서 펑션을 호출하게 되면 함수가 어느 메모리 주소에 있는 지 알아내고 그 주소에 있는 프로그램을 가져다가 실행함 돌아올때 어디로 돌아와야하는지도 알아야함
+
+**함수 포인터 선언**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int func()
+{
+	return 5;
+}
+int main()
+{
+	int (*fcnptr)();  // 선언
+	int (*fcnptr)() = func; // 초기화
+
+	return 0;
+}
+```
+
+- fcnptr은 맘대로 정하면됨
+
+___
+
+**함수 바꿔치기**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int func()
+{
+	return 5;
+}
+
+int goo()
+{
+	return 10;
+}
+
+int main()
+{
+	int (*fcnptr)() = func; 
+
+	cout << fcnptr() << endl; // 5
+
+	fcnptr = goo;
+
+	cout << fcnptr() << endl; // 10
+
+	return 0;
+}
+```
+
+- 포인터인데 `()`로 함수의 기능을 실행
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int func(int x)
+{
+	return 5;
+}
+
+int goo(int x)
+{
+	return 10;
+}
+
+int main()
+{
+	int (*fcnptr)(int) = func; 
+
+	cout << fcnptr(0) << endl; // 5
+
+	fcnptr = goo;
+
+	cout << fcnptr(0) << endl; // 10
+
+	return 0;
+}
+```
+- 함수 포인터 변수의 타입은 대입하려는 함수의 리턴타입의 타입과 정확히 일치해야함
+- 매개변수와 리턴타입을 맞춰줘야 함수포인터를 사용할 수 있음
+
+___
+
+**배열의 홀수,짝수 값 출력하는 코드**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+void printNumbers(const array<int, 10>& my_array, bool print_even)
+{
+	for (auto element : my_array)
+	{
+		if (print_even && element % 2 == 0) cout << element;
+		if (!print_even && element % 2 == 1) cout << element;
+	}
+	cout << endl;
+}
+
+int main()
+{
+	std::array<int, 10> my_array = { 0,1,2,3,4,5,6,7,8,9 };
+
+	printNumbers(my_array, true);
+	printNumbers(my_array, false);
+
+	return 0;
+}
+```
+
+- `&` 를 앞에 붙이는 이유
+  - 파라메타는 앞으로붙여도 문제가 안생김
+
+
+**함수 포인터로 바꾼 코드**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+bool isEven(const int& number)
+{
+	if (number % 2 == 0) return true;
+	else return false;
+}
+
+bool isOdd(const int& number)
+{
+	if (number % 2 != 0) return true;
+	else return false;
+}
+
+void printNumbers(const array<int, 10>& my_array, bool (*check_fcn)(const int&))
+{
+	for (auto element : my_array)
+	{
+		if (check_fcn(element) == true) cout << element;
+	}
+	cout << endl;
+}
+
+int main()
+{
+	std::array<int, 10> my_array = { 0,1,2,3,4,5,6,7,8,9 };
+
+	printNumbers(my_array, isEven);
+	printNumbers(my_array, isOdd);
+
+	return 0;
+}
+```
+
+- bool 대신 기능을 넣어줌 함수를 넣어주기
+- 함수를 넣어서 다른 함수의 기능을 바꿔버림
+- 다형성 이해시 도움이됨
+
+**기본 매개변수 넣은 코드**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+bool isEven(const int& number)
+{
+	if (number % 2 == 0) return true;
+	else return false;
+}
+
+bool isOdd(const int& number)
+{
+	if (number % 2 != 0) return true;
+	else return false;
+}
+
+void printNumbers(const array<int, 10>& my_array, 
+	bool (*check_fcn)(const int&) = isEven)
+{
+	for (auto element : my_array)
+	{
+		if (check_fcn(element) == true) cout << element;
+	}
+	cout << endl;
+}
+
+int main()
+{
+	std::array<int, 10> my_array = { 0,1,2,3,4,5,6,7,8,9 };
+
+	printNumbers(my_array);
+	printNumbers(my_array);
+
+	return 0;
+}
+```
+
+**함수포인터 typedef , using 사용하기**
+
+```cpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+bool isEven(const int& number)
+{
+	if (number % 2 == 0) return true;
+	else return false;
+}
+
+bool isOdd(const int& number)
+{
+	if (number % 2 != 0) return true;
+	else return false;
+}
+
+typedef bool (*check_fcn_t)(const int&); // 1
+using check_fcn_t = bool(*)(const int&); // 2
+
+void printNumbers(const array<int, 10>& my_array, 
+	check_fcn_t check_fcn = isEven)
+{
+	for (auto element : my_array)
+	{
+		if (check_fcn(element) == true) cout << element;
+	}
+	cout << endl;
+}
+
+int main()
+{
+	std::array<int, 10> my_array = { 0,1,2,3,4,5,6,7,8,9 };
+
+	printNumbers(my_array);
+	printNumbers(my_array);
+
+	return 0;
+}
+```
+
+**C++ 11 `#include <functional>`**
+
+```cpp
+#include <iostream>
+#include <array>
+#include <functional>
+
+using namespace std;
+
+bool isEven(const int& number)
+{
+	if (number % 2 == 0) return true;
+	else return false;
+}
+
+bool isOdd(const int& number)
+{
+	if (number % 2 != 0) return true;
+	else return false;
+}
+
+//typedef bool (*check_fcn_t)(const int&);
+using check_fcn_t = bool(*)(const int&);
+
+void printNumbers(const array<int, 10>& my_array, 
+	std::function<bool(const int&)> check_fcn)
+{
+	for (auto element : my_array)
+	{
+		if (check_fcn(element) == true) cout << element;
+	}
+	cout << endl;
+}
+
+int main()
+{
+	std::array<int, 10> my_array = { 0,1,2,3,4,5,6,7,8,9 };
+
+	std::function<bool(const int&)> fcnptr = isEven;
+
+	printNumbers(my_array, fcnptr);
+
+	fcnptr = isOdd;
+
+	printNumbers(my_array, fcnptr);
+
+	return 0;
+}
+```
 
 ### **🌱 **
 
