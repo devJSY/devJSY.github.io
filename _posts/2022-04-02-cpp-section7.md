@@ -2068,7 +2068,7 @@ int main()
 }
 ```
 
-- cout 에서 문자열 특성항 `\0` 을 만날때까지 출력하도록 되어있음
+- cout 에서 문자열 특성항 `\0` 을 만날때까지 출력 하도록 되어있음
 - `&hello[2]` 는 `l` 을 가르키게되고 여기서부터 `\0` 을 만날때까지 출력하여 위와같은 출력을 내게됨  
 
 ### **🌱 **
@@ -2077,13 +2077,7 @@ int main()
 
 ### **🌱 **
 
-
-
-
-
-
-
-
+### **🌱 **
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
