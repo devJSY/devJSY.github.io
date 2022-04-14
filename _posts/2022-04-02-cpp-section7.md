@@ -1920,11 +1920,156 @@ int main()
   - 구현하기 더 쉽지만 stack 을 사용해야하기때문에 호출하는 depth 가 한계가 있기때문에 Iteration로 바꿔 사용하는 편이 좋음
   - 퍼포먼스가 중요할때 사용하지않는것이 좋음
 
+### **🌱 7.13 방어적 프로그래밍의 개념**
+
+- Defensive Programming
+
+- 오류가 있다면 컴파일러가 잡아줄수 있을도록 코딩하는게 좋음
+
+___
+
+**syntax error**
+  - 문법 오류
 
 
+```cpp
+#include <iostream>
 
+using namespace std;
 
-### **🌱 **
+int main()
+{
+	int x // error
+
+	return 0;
+}
+```
+
+___
+
+**semantic errors**
+  - 문맥 오류, 의미 오류
+
+**논리 오류**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	int x;
+	cin >> x;
+
+	if (x >= 5)
+		cout << "x is freater then 5" << endl;
+	
+	return 0;
+}
+```
+
+- 5 를 입력해도 `=`때문에 출력이됨
+
+___
+
+**violated assumption**
+  - 가정을 위반함
+  - 사용자가 내가 작성한것과 전혀 다른방식으로 사용됨
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	string hello = "Hellom my name is Jack jack";
+
+	int ix;
+	cin >> ix;
+
+	cout << hello[ix] << endl;
+	
+	return 0;
+}
+```
+
+- 사용자가 문자열의 길이보다 많은 길이를 입력하면 런타임에러 발생함
+
+**개선 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	string hello = "Hellom my name is Jack jack";
+
+	cout << "Input from 0 to " << hello.size() - 1 << endl;
+
+	while (true)
+	{
+		int ix;
+		cin >> ix;
+
+		if (ix >= 0 && ix <= hello.size() - 1)
+			{
+				cout << hello[ix] << endl;
+				break;
+			}
+		else
+			cout << "Please try again" << endl;
+	}
+
+	return 0;
+}
+```
+
+___
+
+**문자열 출력**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main()
+
+{
+
+	string hello = "Hello, my name is Jack Jack";
+
+	cout << hello << endl;
+
+	cout << &hello[0] << endl;
+
+	cout << &hello[1] << endl;
+
+	cout << &hello[2] << endl;
+
+	return 0;
+
+	/*
+	->
+
+	Hello, my name is Jack Jack
+
+	Hello, my name is Jack Jack
+
+	ello, my name is Jack Jack
+
+	llo, my name is Jack Jack
+	*/
+}
+```
+
+- cout 에서 문자열 특성항 `\0` 을 만날때까지 출력하도록 되어있음
+- `&hello[2]` 는 `l` 을 가르키게되고 여기서부터 `\0` 을 만날때까지 출력하여 위와같은 출력을 내게됨  
 
 ### **🌱 **
 
