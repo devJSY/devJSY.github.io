@@ -2073,11 +2073,253 @@ int main()
 
 ### **🌱 7.14 단언하기 assert**
 
+- 컴파일러 도움을 받을때 사용 
+
+**기본적인 사용법**
+
+```cpp
+#include <iostream>
+#include <cassert> // assert.h
+
+using namespace std;
+
+int main()
+{
+	assert(false);
+
+	return 0;
+
+}
+```
+
+- run time error 
+  - 어디서 에러났는지 알려줌
+- release 모드에서는 작동하지않음
+- Debug mode 에서만 프로그래머가 테스트할때 사용할수 있음
+- 옵션 - C/C++ - 전처리기 - 전처리기 정의 
+  - Debug 설정이 되어있으면 assert 가 작동을 안함
+- 모드에 따라 작동 할수도 있고 안할수도 있음
+
+**예제 1**
+
+```cpp
+#include <iostream>
+#include <cassert> // assert.h
+
+using namespace std;
+
+int main()
+{
+	const int number = 5;
+
+	//...
+	//number should be 5
+	assert(number == 5);
+
+	return 0;
+
+}
+```
+
+- 주석만 남겨놓으면 결국은 프로그래머가 찍어봐야함
+- 주석대신 `assert()` 를 해놓으면 디버그모드에선 오류를 잡아주고 릴리즈 모드에선 `assert()` 를 실행을 안시킴
+  - `assert()` 실행 시키는 것도 연산량을 먹기 때문에 느려짐 릴리즈모드에서는 가급적 프로그램이 빠르게 실행되야되기 때문에 릴리즈모드에서는 실행을 안함 
+
+**예제 2**
+
+```cpp
+#include <iostream>
+#include <cassert> // assert.h
+#include <array>
+
+using namespace std;
+
+void printValue(const std::array<int, 5>& my_array, const int& ix)
+{
+	assert(ix >= 0);
+	assert(ix <= my_array.size() - 1);
+
+	std::cout << my_array[ix] << std::endl;
+}
+
+int main()
+{
+	std::array<int, 5> my_array{ 1,2,3,4,5 };
+
+	printValue(my_array, 100);
+
+	return 0;
+
+}
+```
+
+- Assertion failed: ix <= my_array.size() - 1, file C:\Users\JSY\Desktop\Github\myfirstHelloWorld\myfirstHelloWorld\소스.cpp, line 10
+- 위와같이 어디서 무엇때문에 에러가났는지 알려줌
+- 보통 쪼게서 사용함
+- 런타임에 체크해줌
+
+___
+
+**static asesrt**
+
+```cpp
+#include <iostream>
+#include <cassert> // assert.h
+#include <array>
+
+using namespace std;
+
+int main()
+{
+	int x = 5;
+
+	// x = 10;
+
+	assert(x == 5);
+	static_assert(x == 5, "x should be 5"); // Error
+
+	return 0;
+}
+```
+
+- 컴파일 타임에 에러가 발생하게 끔 할수 있음
+- 문구를 남길수 있음
+- `x = 10;` 과 같이 값이 변경될 가능성이 있으면 Error 사용못함
+- 변수가 const 인경우 사용할 수 있음
+
 ### **🌱 7.15 명령줄 인수 command line arguments**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+	for (int count = 0; count < argc; ++count)
+	{
+		cout << argv[count] << endl;
+	}
+
+	return 0;
+}
+```
+
+- os가 메인함수를 호출할때 2가지를 넣을 수 있음
+- `argc` 는 갯수
+- `*argv[]` 은 내용 
+- 위 프로그램 실행시 실행파일 이름이 뜸
+
+
+**cmd**
+- cmd 에서 exe프로그램 실행시 실행시킨 명령문이 출력이됨
+
+___
+
+**string 으로 출력하기**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+	for (int count = 0; count < argc; ++count)
+	{
+		std::string argv_single = argv[count];
+		cout << argv_single << endl;
+	}
+
+	return 0;
+}
+```
+
+___
+
+**숫자 자료형 변환 방법**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+	for (int count = 0; count < argc; ++count)
+	{
+		std::string argv_single = argv[count];
+
+		if (count == 1)
+		{
+			int input_number = std::stol(argv_single);
+			cout << input_number +1 << endl;
+		}
+		else
+			cout << argv_single << endl;
+	}
+
+	return 0;
+}
+```
+
+- `std::stol()` 를 사용 하여 정수로 바꿀수 있음
+___
+
+**단점**
+
+- 사용자가 입력을 잘못 했을때마다 오류처리를 매번 자세히 해줘야함
+  - boost 라이브러리
+    - 준표준
+    - Program_options
+- 갯수가 안맞게 입력시 문제됨
 
 ### **🌱 7.16 생략부호 Ellipsis**
 
-### **🌱 **
+**count 갯수 만큼의 인수를 평균을 내주는 코드**
+
+```cpp
+#include <iostream>
+#include <cstdarg> // for ellipsis
+
+using namespace std;
+
+double findArerage(int count, ...)
+{
+	double sum = 0;
+
+	va_list list;
+
+	va_start(list, count);
+
+	for (int arg = 0; arg < count; ++arg)
+		sum += va_arg(list, int);
+
+	va_end(list);
+
+	return sum / count;
+}
+
+int main()
+{
+	cout << findArerage(1, 1, 2, 3, "Hello", 'c') << endl; // 1
+	cout << findArerage(3, 1, 2, 3) << endl; // 2
+	cout << findArerage(5, 1, 2, 3, 4, 5) << endl; // 3
+	cout << findArerage(10, 1, 2, 3, 4, 5) << endl; // 3.25651e+08
+
+	return 0;
+}
+```
+
+- 매개변수 갯수가 정해져있지않았으면 좋겠다고 생각 할때 사용
+- 함수 파라메타에 `...` 을 넣어주면됨
+- 파라메타의 갯수를 알려줘야 함
+	- 첫번쩨 인수의 값만큼만 적용됨
+	- 인수 갯수 보다 더 높은 값을 적어주면 오류가 발생함
+- 어떤 타입으로 들어갈지 미리 정해 줘야함
+
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
