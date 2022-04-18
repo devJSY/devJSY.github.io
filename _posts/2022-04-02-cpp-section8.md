@@ -12,7 +12,7 @@ toc: true
 toc_sticky: true
  
 date: 2022-04-13
-last_modified_at: 2022-04-17
+last_modified_at: 2022-04-18
 ---
 
 # 🤔 학습목표
@@ -873,6 +873,643 @@ int main()
 - 한 class 가 다른 class를 멤버 변수로 사용할 경우 멤버 변수의 생성자가 먼저 실행됨
 - 생성자를 private로 사용할 수도 있음
   - 특별한 경우에 사용함 
+
+### **🌱 8.4 생성자 맴버 초기화 목록**
+
+- 생성자의 멤버 이니셜라이져 리스트 Member Initializeer List
+- 멤버 초기화 리스트, 멤버 초기자 리스트 라고도 부름
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class Something
+{
+private:
+	int		m_i;
+	double	m_d;
+	char	m_c;
+	int m_arr[5];
+
+public:
+	Something()
+		:m_i(1), m_d(3.14), m_c('a'), m_arr{1,2,3,4,5}
+	{
+		/*m_i = 1;
+		m_d = 3.14;
+		m_c = 'a';*/
+	}
+
+	void print()
+	{
+		cout << m_i << " " << m_d << " " << m_c << endl;
+		for (auto& e : m_arr)
+			cout << e << " ";
+		cout << endl;
+	}
+};
+int main()
+{
+	Something som;
+	som.print();
+
+	
+	return 0;
+}
+```
+
+- 멤버 이니셜라이즈 리스트 초기화 후에 생성자에서 값을 변경하는것 가능함
+- `:` 를 적어줘야하고 마지막에는 `,` 가없음
+- `()` 대신에 `{}` 를 써도됨
+  - 형변환이 안됨
+  - 자동으로 캐스팅안하고 막아버림 
+  - 좀더엄격함
+- C++ 11부터는 배열도 초기화 할 수 있음
+
+___
+
+**초기화 우선순위**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class B
+{
+private:
+	int m_b;
+
+public:
+	B(const int& m_b_in)
+		: m_b(m_b_in)
+	{}
+};
+
+class Something
+{
+private:
+	int		m_i = 100;
+	double	m_d = 100.0;
+	char	m_c = 'F';
+	int		m_arr[5] = {100,200,300,400,500};
+	B		m_b{1024};
+
+public:
+	Something()
+		:m_i(1), 
+		m_d(3.14), 
+		m_c('a'), 
+		m_arr{1,2,3,4,5}, 
+		m_b(m_i -1)
+	{
+		m_i *= 3;
+		m_d *= 3.0;
+		m_c += 3;
+	}
+
+	void print()
+	{
+		cout << m_i << " " << m_d << " " << m_c << " " << endl;
+		for (auto& e : m_arr)
+			cout << e << " ";
+		cout << endl;
+	} 
+};
+int main()
+{
+	Something som;
+	som.print();
+
+	
+	return 0;
+}
+```
+
+- 멤버 안에 다른 클래스 멤버가 들어갈 경우
+- 코드가 가로로 길면 줄바꿈을 해서 정리해주기 
+  - 한칸씩 줄바꿈
+  - 콤마를 앞으로 빼주기
+    - 코드의 변동이 많을때 편함
+- `Something` 의 `private` non-static 멤버들은 초기화 할수 있음
+- 멤버를 초기화하고 생성자에서도 초기화 했을때 생성자 의 우선순위가 더 높아서 생성자에서 초기화 한 값이 적용됨
+- 멤버 이니셜라이즈 리스트 초기화 후에 생성자에서 값을 변경한 값이 최종 대입값임
+
+### **🌱 8.5 위임 생성자**
+
+- Delegating Construvtors
+- 생성자가 다른 생성자를 사용하는것을 위임 생성자 라고함
+- 파라메타가 여러개일때 사용하는 경우가 많음
+
+___
+
+**함수 파라메타 기본값 할당 코드**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Student
+{
+private:
+	int		m_id;
+	string	m_name;
+
+public:
+	Student(const string& name_in)
+		: m_id(0), m_name(name_in)
+	{}
+
+	Student(const int& id_in, const string& name_in)
+		: m_id(id_in), m_name(name_in)
+	{}
+
+	void print()
+	{
+		cout << m_id << " " << m_name << endl;
+	}
+
+};
+
+
+int main()
+{
+	Student st1(0, "Jack jack");
+	st1.print();
+
+	Student st2("Dash");
+	st2.print();
+
+	return 0;
+}
+```
+
+- `m_id` 에 기본값을 넣고 싶을때 사용할수 있는방법임
+- 매우 비추천하는 방법
+  - 어떠한 기능을하는 코드는 한군데만 나와야함
+  - 초기화 해주는것도 한군데서만 하기
+  - `m_id(0)` 미리 이렇게 값을 넣어두면 나중에 찾기 힘듬
+
+
+**위임 생성자**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Student
+{
+private:
+	int		m_id;
+	string	m_name;
+
+public:
+	Student(const string& name_in)
+		// : m_id(0), m_name(name_in)
+		: Student(0, name_in)
+	{}
+
+	Student(const int& id_in, const string& name_in)
+		: m_id(id_in), m_name(name_in)
+	{}
+
+	void print()
+	{
+		cout << m_id << " " << m_name << endl;
+	}
+
+};
+
+int main()
+{
+	Student st1(0, "Jack jack");
+	st1.print();
+
+	Student st2("Dash");
+	st2.print();
+
+	return 0;
+}
+```
+
+- C++ 11이후에 가능한 코드
+
+___
+
+**만능초기화 함수를 하나 만들어 분리하기**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Student
+{
+private:
+	int		m_id;
+	string	m_name;
+
+public:
+	Student(const string& name_in)
+		// : m_id(0), m_name(name_in)
+		: Student(0, name_in)
+	{
+		init(0, name_in);
+	}
+
+	Student(const int& id_in, const string& name_in)
+	//	: m_id(id_in), m_name(name_in)
+	{
+		init(id_in, name_in);
+	}
+
+	void init(const int& id_in, const string& name_in)
+	{
+		m_id = id_in;
+		m_name = name_in;
+	}
+
+	void print()
+	{
+		cout << m_id << " " << m_name << endl;
+	}
+
+};
+
+int main()
+{
+	Student st1(0, "Jack jack");
+	st1.print();
+
+	Student st2("Dash");
+	st2.print();
+
+	return 0;
+}
+```
+
+- `init()` 함수를 하나 만들고 여기서 초기화 후 다른 함수에서 불러다가 사용하는 방법
+- 어떤 경우는 이 문법을 더 추천 함
+
+### **🌱 8.6 소멸자 destrctor**
+
+- 생성자는 함수가 만들어질때 실행되는것
+- 소멸자는 변수가 영역을 벗어나 소멸이될때 실행되는 것
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Simple 
+{
+private:
+	int m_id;
+
+public:
+	Simple(const int& id_in)
+		: m_id(id_in)
+	{
+		cout << "Construtor " << m_id << endl;
+	}
+
+	~Simple()
+	{
+		cout << "Destructoir " << m_id << endl;
+	}
+};
+
+int main()
+{
+	Simple s1(0);
+	Simple s2(1);
+
+	/*Construtor 0
+	Construtor 1
+	Destructoir 1
+	Destructoir 0*/
+
+	return 0;
+}
+```
+
+- 리턴 타입이 없음
+- `~` 틀다
+- 소멸자는 파라메타가 없음
+
+___
+
+**동적할당**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Simple 
+{
+private:
+	int m_id;
+
+public:
+	Simple(const int& id_in)
+		: m_id(id_in)
+	{
+		cout << "Construtor " << m_id << endl;
+	}
+
+	~Simple()
+	{
+		cout << "Destructoir " << m_id << endl;
+	}
+};
+
+int main()
+{
+	/*Simple s1(0);*/
+	Simple* s1 = new Simple(0);
+	Simple s2(1);
+
+	delete s1;
+
+	/*Construtor 0
+	Construtor 1
+	Destructoir 0
+	Destructoir 1*/
+
+	return 0;
+}
+
+```
+
+- 중괄호 영역을 벗어나서 호출
+- 소멸자는 instance 가 메모리에서 해제될때 내부에서 자동으로 호출됨 동적할당으로 만들어진 경우에는 영역을 벗어나도 자동으로 메모리가 해제되지 않기 때문에 delete으로 메모리를 해제할 때에만 소멸자가 호출됨 
+- 소멸자를 프로그래머가 직접 호출하는 것은 대부분의 경우 권장 하지 않음
+- 용도
+  - delete 해주는 부분
+
+___
+
+**메모리 릭**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class IntArray
+{
+private:
+	int* m_arr = nullptr;
+	int m_length = 0;
+	 
+public:
+	IntArray(const int length_in)
+	{
+		m_length = length_in;
+		m_arr = new int[m_length];
+
+		cout << "Constructor" << endl;
+	}
+
+	int size() { return m_length; }
+};
+
+int main()
+{
+	while (true)
+	{
+		IntArray my_int_arr(10000);
+		// delete[] my_int_arr.m_arr; 접근을 못함
+	}
+
+	return 0;
+}
+```
+
+- 메모리를 계속 먹음
+- delete를 해줘야하는데 `delete[]` 가 번거롭기도하고 접근이 안됨
+
+**소멸자를 활용한 해결 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class IntArray
+{
+private:
+	int* m_arr = nullptr;
+	int m_length = 0;
+	 
+public:
+	IntArray(const int length_in)
+	{
+		m_length = length_in;
+		m_arr = new int[m_length];
+
+		cout << "Constructor" << endl;
+	}
+
+	~IntArray()
+	{
+		if (m_arr != nullptr) delete[] m_arr;
+	}
+
+	int size() { return m_length; }
+};
+
+int main()
+{
+	while (true)
+	{
+		IntArray my_int_arr(10000);
+	}
+
+	return 0;
+}
+```
+
+- while문의 `{}` 가 끝날때마다 소멸자를 호출해서 `delete[]` 를 해줌
+- 메모리 사용시 new가 있다면 delete는 필수
+- class 사용할때 new 사용하는 class 에서 위 코드와같이 소멸자로 delete 해주면됨 
+- vector 내부에 위 매커니즘같이 메모리를 반납하는 기능이 구현이 되어있음
+- new 와 delete 가 느리니까 vector 사용하기
+
+### **🌱 8.7 this 포인터와 연쇄 호출**
+
+- Chaining Member Functions
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Simple
+{
+private:
+	int m_id;
+
+public:
+	Simple(int id)
+	{
+		this -> setID(id);
+		this -> m_id;
+		(*this).setID(id);
+
+		cout << this << endl;
+	}
+
+	void setID(int id) { m_id = id; }
+	int getId() { return m_id; }
+};
+
+int main()
+{
+	Simple s1(0), s2(1);
+	s1.setID(2);
+	s2.setID(4);
+
+	cout << &s1 << " " << &s2 << endl;
+
+	//Simple::setID(&s1, 1); == s1.setID(1);
+	//Simple::setID(&s2, 4); == s2.setID(4);
+
+	return 0;
+}
+```
+
+- s1,s2에 각각 따로 저장되있진 않고 
+- `this` 자기 자신의 주소를 찍어줌
+- `void setID()` 는 클래스의 모든 인스턴스가 공유를 해서 사용하는것 내부적으로 어떻게 구분하느냐면 `this -> setID(id)` 가 숨어있는 것
+- `->` 클래스나 구조체가 포인터일 경우 멤버 선택 연산자임
+- `this -> m_id;` 와 같이 멤버변수도 접근할 수 있음
+- `Simple::setID(&s1, 1);` 문법적으론 사용이 불가능하지만 개념적으론 이와같은 방식으로 작동함
+- 각 인스턴스들이 자기의 포인터를 갖고있고 이 포인터를 볼려면 this 키워드를 사용하면 됨
+- 현재 주소를 갖고있는 인스턴스에서 setID라는 함수를 사용한다는 의미에서 `this -> setID(id);`
+- 현재 this에 들어있는 주소를 갖고 있는 인스턴스의 `m_id` 를 접근한다는 뜻에서 `this -> m_id;`
+- 실제 사용할때는 this 를 빼버림
+
+___
+
+**this pointer 의 용법**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Calc
+{
+
+private:
+	int m_value;
+
+public:
+	Calc(int init_value)
+		: m_value(init_value)
+	{}
+
+	void add(int value) { m_value += value; }
+	void sub(int value) { m_value -= value; }
+	void mult(int value) { m_value *= value; }
+
+	void print()
+	{
+		cout << m_value << endl;
+	}
+
+};
+int main()
+{
+	Calc cal(10);
+	cal.add(10);
+	cal.sub(1);
+	cal.mult(2);
+
+	cal.print();
+
+	return 0;
+}
+```
+
+- `cal.` 이 반복됨
+
+**this pointer 의 용법 적용 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Calc
+{
+
+private:
+	int m_value;
+
+public:
+	Calc(int init_value)
+		: m_value(init_value)
+	{}
+
+	Calc& add(int value) { m_value += value; return *this; }
+	Calc& sub(int value) { m_value -= value; return *this; }
+	Calc& mult(int value) { m_value *= value; return *this; }
+
+	void print()
+	{
+		cout << m_value << endl;
+	}
+
+};
+int main()
+{
+	Calc cal(10);
+
+	// 1
+	Calc& temp1 = cal.add(10);
+	Calc& temp2 = cal.sub(1);
+	Calc& temp3 = cal.mult(2);
+	temp3.print();
+
+	// 2
+	cal.add(10).sub(1).mult(2).print();
+
+	return 0;
+}
+```
+
+- `Calc&` 클래스의 레퍼런스 타입을 리턴하고 자기가신의 주소값을 de-reference 해서 리턴해줌
+- clac 타입의 레퍼런스 실제 리턴되는건 정확한 메모리를 가지고 있는 메모리 여야함
+- `#1` 과 같이 동작하는 코드를 `#2` 와같이 줄일수 있음
+- 이러한 기법을 멤버펑션체이닝 이라고함
+  - 실용성은 명확하진않음
+  - c++ 입장에선 번거로움
+  - api가 좀 복잡할 경우 사용가능한 함수 사용못하는 함수 구분해야되기 때문에 사용자입장에서도 쪼금 애매함
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
+
+### **🌱 **
 
 ### **🌱 **
 
