@@ -1499,9 +1499,312 @@ int main()
   - c++ 입장에선 번거로움
   - api가 좀 복잡할 경우 사용가능한 함수 사용못하는 함수 구분해야되기 때문에 사용자입장에서도 쪼금 애매함
 
-### **🌱 **
+### **🌱 8.8 클래스 코드와 헤더 파일**
 
-### **🌱 **
+- class 만들때 헤더파일 만들어서 선언과 정의 파일 나누기
+- 보통 클래스이름과 헤더파일 이름을 맞춰줌
+- 헤더파일에서는 `usiing namespace` 사용안하는게 좋음
+  - `#include` 하는것들이 전부 영향을 받기 때문임
+
+**기본 코드**
+
+```cpp
+#include "Clac.h"
+
+Calc& add(int value)
+{
+	m_value += value;
+	return *this;
+}
+```
+
+**Clac.cpp**
+
+```cpp
+#include "Clac.h"
+
+Calc& Calc::add(int value)
+{
+	m_value += value;
+	return *this;
+}
+```
+
+**Clac.h**
+
+```cpp
+Calc& add(int value);
+```
+
+- 기본형태 코드를 쪼게서 `clac.h` 파일에 선언만 해주고 `Clac.cpp` 파일에 기능 부분 코드를 `::` 을 추가해 적어주고 include 하여 사용할 수 있음 
+
+- 함수명에 마우스 우클릭 → 빠른 작업 및 리팩토링 → 정의 위치 이동
+  - 자동으로 cpp 파일에 기능이 들어가고 inline 으로 기능을 옮겨주고 현재 헤더파일은 선언만 남게됨
+  - 클래스안에 멤버 펑션의 정의를 다해놓으면 얘를 inlineing 하고싶다는것으로 간주를 함
+
+- shift + del 키로 줄바꿈 지울수 있슴
+- 생성자도 옮길수 있음
+  - 옮겨도 되고 안 옮겨도됨
+
+- 기능만 구현하는 cpp 파일을 만들었다면 `using namespace std;` 를 맨위에 적어 영향을 받게해도 상관없음
+
+- 오픈소스 볼때 헤더파일만 쓱쓱보고 사용해보고 자세한게 필요하면 cpp파일 들어가서 확인하는것이 일반적임
+
+- 처음부터 헤더 파일만들고 class 만들기
+- 템블릿 등 구현등 상황에선 헤더파일에 기능구현을 해놓는 경우도 있음
+___
+
+**메인.cpp**
+
+```cpp
+#include "Clac.h"
+
+int main()
+{
+	Calc cal(10);
+
+	cal.add(10).sub(1).mult(2).print();
+
+	return 0;
+}
+```
+
+**Calc.h**
+
+```cpp
+#pragma once 
+
+#include <iostream>
+
+class Calc
+{
+
+private:
+	int m_value;
+
+public:
+	Calc(int init_value);
+
+	Calc& add(int value);
+	Calc& sub(int value);
+	Calc& mult(int value);
+	void print();
+};
+```
+
+**Calc.cpp**
+
+```cpp
+#include "Clac.h"
+
+using namespace std;
+
+Calc::Calc(int init_value)
+	: m_value(init_value)
+{}
+
+Calc& Calc::add(int value)
+{
+	m_value += value;
+	return *this;
+}
+
+Calc& Calc::sub(int value)
+{
+	m_value -= value;
+	return *this;
+}
+
+Calc& Calc::mult(int value)
+{
+	m_value *= value;
+	return *this;
+}
+
+void Calc::print()
+{
+
+	cout << m_value << endl;
+}
+```
+
+### **🌱 8.9 클래스와 const**
+
+- const를 사용할때는 변수를 상수로 만들고 싶을때 사용
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Something
+{
+public:
+	int m_value = 0;
+
+	void setValue(int value) const
+	{  
+		m_value = value; // Error
+	}
+
+	int getValue() const // 멤버 펑션 const  
+	{ 
+		return m_value; 
+	}
+
+};
+int main()
+{
+	const Something something;
+	something.setValue(3); // 1 Error
+
+	cout << something.getValue() << endl; // 2 Error
+
+	return 0;
+}
+```
+
+- `something` 인스턴스, 오브젝트, 변수라고도 부름
+- `#1` const로 선언되면 class 멤버 변수를 const로 만든것과 동일한 효과로 변수값을 변경을 못하기때문에 ERROR 발생
+- `#2` 컴파일러가 판단하기로는 멤버 펑션이 const냐 아니냐로 판단하고 에러를 띄움
+  - 멤버 펑션 `()` 우측에 const 라고 적어주면 멤버 펑션을 const로 만들수 있음
+    - 함수안에서 멤버 변수를 바꾸는행위를 하지 않는다는 뜻으로 적어놓는것임
+  - 멤버 펑션으로 만들면 출력할 수 있음
+- 클래스의 인스턴스를 상수로 만든경우에는 const멤버 펑션만 사용할 수 있음
+- const로 넣을수 있는 함수에는 넣어두는게 오류찾기랑 컴파일 할 때 좋음
+
+___
+
+```cpp
+#include <iostream>
+#include "Clac.h"
+
+using namespace std;
+
+class Something
+{
+public:
+	int m_value = 0;
+
+	Something(const Something& st_in) // copy constructor 
+	{
+		m_value = st_in.m_value;
+	}
+
+	Something()
+	{
+		cout << "Constructor " << endl;
+	}
+
+	void setValue(int value) 
+	{  
+		m_value = value; // Error
+	}
+
+	int getValue() const 
+	{ 
+		return m_value; 
+	}
+
+};
+
+void print(Something st)
+{
+	cout << &st << endl; // 0000004C6858F5D4
+	cout << st.m_value << endl;
+}
+
+int main()
+{
+	Something something;
+
+	cout << &something << endl; // 0000004C6858F5B0
+
+	print(something);
+
+	return 0;
+}
+```
+
+- copy constructor 가 숨어 있음
+- `print(something)` 실행될때 copy constructor 가 실행이되어서 주소가 다른 것 임
+
+**같은 주소값 받는방법**
+
+**Before**
+
+```cpp
+void print(Something st)
+{
+	cout << &st << endl;
+	cout << st.m_value << endl;
+}
+```
+
+**After**
+
+```cpp
+void print(const Something &st)
+{
+	cout << &st << endl; 
+	cout << st.getValue() << endl;
+}
+```
+
+- const &를 사용하여 `getValue()` 로 데이터를 가져와 사용할 수 있음
+- 새로운 인스턴스나 복사를 하지않고 `something` 자체를 받아올수 있어서 굉장히 효율적임
+
+___
+
+**class 함수 const 오버로딩**
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Something
+{
+public:
+	string m_value = "default";
+
+	const string& getValue() const 
+	{
+		cout << "const version" << endl; // 1
+		return m_value;
+	} 
+
+	string getValue() 
+	{
+		cout << "non-const version" << endl; // 2
+		return m_value;
+	} 
+};
+
+int main()
+{
+	Something something;
+	something.getValue(); // 2
+	// something.getValue() = 10;
+
+	const Something something2;
+	something2.getValue(); // 1
+	// something2.getValue() = 10; Error
+
+	return 0;
+}
+```
+- 둘다 레퍼런스를 리턴하고 있는데 반환하는 데이터가 `#1` 은 const 레퍼런스라 값 변경이 안됨
+- `#2` 은 const 레퍼런스라 값 변경 됨
+- 기존 오버로딩은 매개변수가 다르거나 리턴타입으로는 오버로딩이 안됨
+- const가지고 오버로딩이 되고 안되고함
+  - 거의사용하진않음
+- 멤버 펑션을 const로 만드는 경우 리턴타입을 const로 만드는 경우가 일반적임
+  - `const string& getValue() const `
+
+
+
 
 ### **🌱 **
 
