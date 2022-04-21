@@ -2217,14 +2217,528 @@ int main()
 - `Something::_init Something::s_initializer;` 클레스가 만들어지면서 이너 클래스가 초기화됨
 - clss내부에서 직접적으론 안되지만 내부 class를 만들어 그안에서 변수를 간접적으로 초기화 할수 있음
 
+### **🌱 8.12 친구 함수와 클래스 friend**
 
-### **🌱 **
+- 클래스간의 상호작용
 
-### **🌱 **
+**friend 기본 문법**
 
-### **🌱 **
+```cpp
+#include <iostream>
 
-### **🌱 **
+using namespace std;
+
+class A
+{
+private:
+	int m_value = 1;
+
+	friend void doSomething(A& a);
+};
+
+void doSomething(A& a)
+{
+	cout << a.m_value << endl;
+}
+
+int main()
+{
+	A a;
+	doSomething(a);
+
+	return 0;
+}
+```
+
+
+- 연산자 오버로딩에서 많이 사용됨
+  - public 으로 푸는경우도 있지만 객체지향이아님
+  - `private` 이지만 friend이기 때문에 변수도 접근할수 있음
+
+**전방 선언**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class B; // forward declaration
+
+class A
+{
+private:
+	int m_value = 1;
+
+	friend void doSomething(A& a, B& b);
+};
+
+class B
+{
+private:
+	int m_value = 2;
+
+	friend void doSomething(A& a, B& b);
+};
+
+void doSomething(A& a,B &b)
+{
+	cout << a.m_value << " " << b.m_value << endl;
+}
+
+int main()
+{
+	A a;
+	B b;
+	doSomething(a, b); // 1 2
+
+	return 0;
+}
+```
+
+- class B의 정의는 class A 정의시 class b를 찾을수 없어서 에러남
+  - 전방선언으로 해결됨 `class B;`
+
+___
+
+**다른 클래스가 내 private 멤버를 접근하게 하는 방법**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class B; // forward declaration
+
+class A
+{
+private:
+	int m_value = 1;
+
+	friend class B; // 1
+};
+
+class B
+{
+private:
+	int m_value = 2;
+
+public:
+	void doSomething(A& a)
+	{
+		cout << a.m_value << endl;
+	}
+};
+
+int main()
+{
+	A a;
+	B b;
+
+	b.doSomething(a);
+
+	return 0;
+}
+```
+- `#1` `friend class B;` friend class 선언하여 사용
+  - forward declaration 이 필요함
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class A; // forward declaration
+
+class B
+{
+private:
+	int m_value = 2;
+
+public:
+	void doSomething(A& a);
+};
+
+class A
+{
+private:
+	int m_value = 1;
+
+	//friend class B; // 1
+	friend void B::doSomething(A& a);
+};
+
+void B::doSomething(A& a)
+{
+	cout << a.m_value << endl;
+}
+
+int main()
+{
+	A a;
+	B b;
+
+	b.doSomething(a);
+
+	return 0;
+}
+```
+
+- `#2` 특정 멤버 펑션에게만 열어 줄수 있음
+  - friend 멤버 펑션 
+  - B class 안에 doSometing 이라는 함수가 있다는것을 알려줄 방법이 없음
+    - class B 를 class A보다 위로올리고 class A를 전방선언
+  - class B 에서는 `void doSomething(A& a);` 로 선언만 해주고 class A 아래에 기능 부분을 넣어줌
+
+### **🌱 8.13 익명객체**
+
+- anonymous
+- 이름이 붙은 변수를 사용하지않고 바로 사용하는 변수임
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class A
+{
+
+public:
+	void print()
+	{
+		cout << "Hello " << endl;
+	}
+};
+
+int main()
+{
+	/*A a;
+	a.print();*/
+
+	A().print();
+	A().print();
+
+	return 0;
+}
+```
+
+- `A()` 가 R-value 처럼 작동하고 있음
+- 재사용이안됨
+
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class A
+{
+
+public:
+	A()
+	{
+		cout << "Constructor " << endl;
+	}
+
+	~A()
+	{
+		cout << "Destructor " << endl;
+	}
+
+	void print()
+	{
+		cout << "Hello " << endl;
+	}
+};
+
+int main()
+{
+	/*A a;
+	a.print();*/
+
+	A().print(); // 1
+	A().print(); // 2
+
+	//출력결과
+	//Constructor
+	//Hello
+	//Destructor
+	//Constructor
+	//Hello
+	//Destructor
+
+	return 0;
+}
+```
+
+- `#1`, `#2` 서로 사용하는 객체의 메모리 주소가 다름 즉 재사용이 안됨
+- `A a;` 처럼 인스턴스를 정의해놓고 사용할 경우에는 메모리주소가 같음
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class A
+{
+
+public:
+	int m_value;
+
+	A(const int & input)
+		: m_value(input)
+	{
+		cout << "Constructor " << endl;
+	}
+
+	~A()
+	{
+		cout << "Destructor " << endl;
+	}
+
+	void printDouble()
+	{
+		cout << m_value * 2 << endl;
+	}
+};
+
+int main()
+{
+	A a(1);
+	a.printDouble();
+	
+	A(1).printDouble();
+
+	//Constructor
+	//2
+	//Constructor
+	//2
+	//Destructor
+	//Destructor
+
+	return 0;
+}
+```
+
+___
+
+**오버로딩 맛보기?**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Cents
+{
+private:
+	int m_cents;
+public:
+	Cents(int cents) { m_cents = cents; }
+
+	int getConst() const { return m_cents; }
+};
+
+Cents add(const Cents& c1, const Cents& c2)
+{
+	return Cents(c1.getConst() + c2.getConst());
+}
+
+int main()
+{
+	cout << add(Cents(6), Cents(8)).getConst() << endl; // 1
+
+	cout << int(6) + int(8) << endl; // 2
+
+	return 0;
+}
+```
+
+- `#1` , `#2` 의 동작은 똑같음
+
+**익명객체 의 특징**
+- R-value 처럼사용됨
+- 한번씩만 사용됨
+
+### **🌱 8.14 클래스 안에 포함된 자료형 nested**
+
+- Nested typed
+- 클래스 구현시 기능에 맞춰서 특정 자료형을 만들어 사용하는 경우가 있음
+- 클래스안에만 어떤자료형을 사용할수 있음
+
+**기본코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+enum FruitType
+{
+	APPLE,BANANA,CHERRY,
+};
+
+class Fruit
+{
+private:
+	FruitType m_type;
+
+public:
+	Fruit(FruitType type) : m_type(type)
+	{}
+
+	FruitType getType() { return m_type; }
+};
+int main()
+{
+	Fruit apple(APPLE);
+
+	if(apple.getType() == APPLE);
+	{
+		std::cout << "APPLE " << std::endl;
+	}
+
+	return 0;
+}
+```
+
+**변경후 코드**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Fruit
+{
+public:
+	enum class FruitType
+	{
+		APPLE, BANANA, CHERRY,
+	};
+
+	class InnerClass
+	{
+
+	};
+
+	struct IneerStruct
+	{
+
+	};
+
+private:
+	FruitType m_type;
+
+public:
+	Fruit(FruitType type) : m_type(type)
+	{}
+
+	FruitType getType() { return m_type; }
+};
+int main()
+{
+	Fruit apple(Fruit::FruitType::APPLE);
+
+	if(apple.getType() == Fruit::FruitType::APPLE);
+	{
+		std::cout << "APPLE " << std::endl;
+	}
+
+	return 0;
+}
+```
+
+- `enum FruitType` 이 class Fruit 안에서만 사용할 경우 class 안에 넣을수 있음
+- 기능은 똑같고 소속감을 표시해줘야하기때문에 사용할 때 `Fruit::` 넣어주면됨
+- enum class도 사용가능함 
+	- `Fruit::FruitType::APPLE`
+	- 조금더 구체적으로 사용해줘야함
+
+### **🌱 8.15 실행 시간 측정하기**
+
+- sorting 하는 시간을 측정하는 예제코드 
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <random>
+#include <chrono>
+
+using namespace std;
+
+class Timer 
+{
+	using clock_t = std::chrono::high_resolution_clock;
+	using second_t = std::chrono::duration<double, std::ratio<1>>;
+
+	std::chrono::time_point<clock_t> start_time = clock_t::now();
+
+public:
+	void elapsed()
+	{
+		std::chrono::time_point<clock_t> end_time = clock_t::now();
+
+		cout << std::chrono::duration_cast<second_t>(end_time - start_time).count() << endl;
+
+	}
+};
+
+int main()
+{
+	random_device rnd_device;
+	mt19937 mersenne_engine{ rnd_device() };
+
+	vector<int> vec(10);
+		for (unsigned int i = 0; i < vec.size(); ++i)
+			vec[i] = i;
+
+	std::shuffle(begin(vec), end(vec), mersenne_engine);
+
+	for (auto& e : vec) cout << e << "";
+	cout << endl;
+
+	Timer timer;
+
+	std::sort(begin(vec), end(vec));
+
+	timer.elapsed();
+
+	for (auto& e : vec) cout << e << " ";
+	cout << endl;
+
+	return 0;
+}
+```
+
+- `chorono` 크로노스 시간의 신이름 
+  - 시간을 재주는 라이브러리임
+- 백터 10개 만들어 순서대로 초기화해주고 `shuffle()` 로 순서를 섞어주고 `Timer timer;` 로 시간측정을 시작하고 `sort()` 한뒤 `elapsed()` 로 지나간 시간 출력해주고 솔팅이된것을 출력해주는코드임
+
+**주의사항**
+- 디버그모드와 릴리즈모드와의 속도차이가 다름
+- 실제속도로 보고싶다면 릴리즈모드로 측정하기
+- os 입장에서는 수많은 프로그램중 하나에 불과함 
+- 프로그램의 실행시간은 굉장히 많은 요소에의해 바뀜
+- 시간측정할때는 여러번 재야함
+  - 최소 3번 
+- 안티바이러스, 음악을 틀고안틀고 멀티 쓰레딩에 차이가 많이남
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
