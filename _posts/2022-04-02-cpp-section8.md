@@ -1803,12 +1803,420 @@ int main()
 - 멤버 펑션을 const로 만드는 경우 리턴타입을 const로 만드는 경우가 일반적임
   - `const string& getValue() const `
 
+### **🌱 8.10 정적 멤버 변수**
+
+- static
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+int generateID()
+{
+	static int s_id = 0;
+	return ++s_id;
+}
+int main()
+{
+	cout << generateID() << endl; // 1
+	cout << generateID() << endl; // 2
+	cout << generateID() << endl; // 3
+	
+	return 0;
+}
+```
+
+- 고유넘버 생성할 때 많이 사용하는 방식임
+
+___
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class something
+{
+public:
+	int m_value = 1;
+
+};
+int main()
+{
+	something st1;
+	something st2;
+
+	st1.m__value = 2;
+
+	cout << &st1.m_value << " " << st1.m_value << endl; // 00000083162FFBD4 2
+	cout << &st2.m_value << " " << st2.m_value << endl; // 00000083162FFBF4 1
+
+	return 0;
+}
+```
+
+- 서로 주소가 다름
+- static 멤버변수는 initialize를 할 수 없음
+  - `static int m__value = 1; // Error`
 
 
+```cpp
+#include <iostream>
 
-### **🌱 **
+using namespace std;
 
-### **🌱 **
+class Something
+{
+public:
+	static int s_value;
+
+};
+
+int Something::s_value = 1;
+
+int main()
+{
+	Something st1;
+	Something st2;
+
+	st1.s_value = 2;
+
+	cout << &st1.s_value << " " << st1.s_value << endl; // 00007FF68E65E010 2
+	cout << &st2.s_value << " " << st2.s_value << endl; // 00007FF68E65E010 2
+
+	return 0;
+}
+```
+
+- 서로 주소가 같음, 값도 같음
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Something
+{
+public:
+	static int s_value;
+
+};
+
+int Something::s_value = 1; // define in cpp
+
+int main()
+{
+	cout << &Something::s_value << " " << Something::s_value << endl;
+
+	Something st1;
+	Something st2;
+
+	st1.s__value = 2;
+
+	cout << &st1.s_value << " " << st1.s_value << endl; 
+	cout << &st2.s_value << " " << st2.s_value << endl; 
+
+	Something::s__value = 1024;
+
+	cout << &Something::s_value << " " << Something::s_value << endl;
+
+	/*
+	00007FF75A79E010 1
+	00007FF75A79E010 2
+	00007FF75A79E010 2
+	00007FF75A79E010 1024
+	*/
+
+	return 0;
+}
+```
+
+- `Something st1;` 선언하기전에 메모리를 갖고 있음
+  - static이기때문에 정적으로 존재하기 때문임
+- `int Something::s__value = 1;` cpp 파일 안에 정의해두는것이 좋음
+
+___
+
+**static const**
+
+```cpp
+class Something
+{
+public:
+	static const int s_value = 1;
+
+};
+
+int Something::s_value = 1; // Error
+```
+- static const인 경우에는 반대로 초기값을 넣어줄수 있고 다른곳에서 초기화가 불가능함
+
+**constexpr**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Something
+{
+public:
+	static constexpr int s_value = 1;
+
+};
+
+//int Something::s__value = 1; // Error
+
+int main()
+{
+	cout << &Something::s_value << " " << Something::s_value << endl;
+
+	Something st1;
+	Something st2;
+
+	/*st1.s__value = 2;*/
+
+	cout << &st1.s_value << " " << st1.s_value << endl; 
+	cout << &st2.s_value << " " << st2.s_value << endl; 
+
+	/*Something::s__value = 1024;*/
+
+	cout << &Something::s__value << " " << Something::s__value << endl;
+
+
+	return 0;
+}
+```
+
+- 일반적인 const는 런타임에 값이 결정이될 수도 있음
+- constexpr는 컴파일타임에 결정이 되야함
+- 상수선언, 싱글턴 등에서 사용함
+
+### **🌱 8.11 정적 멤버 함수**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Something
+{
+public:
+	static int s_value;
+
+public:
+	int getValue()
+	{
+		return s_value;
+	}
+
+};
+
+int main()
+{
+	cout << Something::s_value << endl;
+
+	Something s1;
+	cout << s1.getValue() << endl;
+	cout << s1.s_value << endl;
+
+	return 0;
+}
+```
+
+**public → private 변경**
+
+```cpp
+private: // public → private
+	static int s_value;
+```
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Something
+{
+private:
+	static int s_value;
+
+public:
+	static int getValue()
+	{
+		return s_value;
+	}
+
+};
+
+int Something::s_value = 1024;
+
+int main()
+{
+	//cout << Something::s_value << endl; // 1 Error
+	cout << Something::getValue() << endl; 
+
+	Something s1;
+	cout << s1.getValue() << endl;
+	//cout << s1.s_value << endl; // Error
+
+	return 0;
+}
+```
+- `#1` `private` 로 변경시 인스턴스 설정을 해주지않으면 변수 접근이 불가능함
+- `static int getValue()`
+  - `getValue()` 함수앞에 ststic 을 붙여 특정 인스턴스와 상관없이 변수를 접근할수 있음
+
+___
+
+**함수 포인터**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Something
+{
+private:
+	static int s_value;
+	int m_value;
+
+public:
+	static int getValue()
+	{
+		return s_value; 
+
+	}
+
+	int temp()
+	{
+		return this -> s_value;
+	}
+
+};
+
+int Something::s_value = 1024;
+
+int main()
+{
+
+	cout << Something::getValue() << endl; 
+
+	Something s1, s2;
+	cout << s1.getValue() << endl;
+
+	// 1
+	int (Something:: * fptr1)() = &Something::temp;
+
+	cout << (s2.*fptr1)() << endl; // 1024
+
+	// 2
+	int (Something:: * fptr2)() = &Something::getValue; // Error
+	int (* fptr2)() = &Something::getValue;
+	cout << fptr2() << endl; // 1024
+
+	return 0;
+}
+```
+
+- static 함수에서는 this 포인터로 접근할수 있는 모든 데이터가 접근 불가능함
+  - 동적 데이터이기때문에
+
+- 멤버평션의 포인터를 가져올수 있음
+- `Something s1, s2;` 와같이 인스턴스가 2개인 경우
+  - 멤버 변수는 서로 주소가 다르지만 멤버 펑션은 주소가 같음
+  - `Something`이라는 클래스안에 속해있는 `temp()` 함수 주소는 한곳에 저장되어 있다가 s1의 this 포인터를 주소를 함수에게 주고 s1의 속해있는 멤버변수로 이 기능을 실행시키기 때문에 함수의 주소는 s1이든 s2이든 같음 
+- `#1` `Something`이라는 클래스안에 속해있는 `temp()` 함수의 포인터를 갖고있는데 s2라는 포인터를 넘겨주고 s2라는 포인터안에있는데 데이터를 가져와서 사용하는 형태로 작동함
+  - 인스턴스 가 종속이되어있는 형태로 구현되기 때문에 non-static 멤버 펑션은 this 포인터를 사용해야함 
+  - 사용자의 편의를 위해 this 포인터를 생략해서 사용함
+- `#2` static 펑션은 `Something` 이라는 클래스선언을 생략해줘야 포인터를 받아올수 있음
+  - 특정 인스턴스없이 실행시킬수 있는 펑션 포인터로 나옴
+- static 함수 에서는 this를 사용할수 없다!
+
+___
+
+**static 생성자**
+
+```cpp
+class Something
+{
+private:
+	static int s_value;
+	int m_value;
+
+public:
+	Something()
+		: m_value(123), s_value(1024) // s_value Error
+	{}
+```
+
+- 생성자에서는 static 멤버 변수초기화가 문법적으로 불가능함
+  - 초기화 하려면 생성자가 static 해야하는데 c++에선 static생성자가 지원을 안함
+- 클래스 안에서 static 멤버 변수초기화하기
+  - 이너 클래스
+  - static 멤버 자료타입은 상관없이 다 가능함
+
+**이너 클래스**
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Something
+{
+public:
+
+	class _init
+	{
+	public:
+		_init()
+		{
+			s_value = 9876;
+		}
+	};
+
+private:
+	static int s_value;
+	int m_value;
+
+	static _init s_initializer;
+
+public:
+
+	static int getValue()
+	{
+		return s_value; 
+
+	}
+
+	int temp()
+	{
+		return this -> s_value;
+	}
+
+};
+
+int Something::s_value;
+Something::_init Something::s_initializer;
+
+int main()
+{
+
+	cout << Something::getValue() << endl; 
+
+	Something s1, s2;
+	cout << s1.getValue() << endl;
+
+	return 0;
+}
+```
+
+- `Something::_init Something::s_initializer;` 클레스가 만들어지면서 이너 클래스가 초기화됨
+- clss내부에서 직접적으론 안되지만 내부 class를 만들어 그안에서 변수를 간접적으로 초기화 할수 있음
+
 
 ### **🌱 **
 
