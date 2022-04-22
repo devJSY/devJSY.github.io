@@ -11,8 +11,8 @@ tags:
 toc: true
 toc_sticky: true
  
-date: 2022-04-13
-last_modified_at: 2022-04-18
+date: 2022-04-18
+last_modified_at: 2022-04-21
 ---
 
 # 🤔 학습목표
@@ -2723,6 +2723,7 @@ int main()
 - 시간측정할때는 여러번 재야함
   - 최소 3번 
 - 안티바이러스, 음악을 틀고안틀고 멀티 쓰레딩에 차이가 많이남
+
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
