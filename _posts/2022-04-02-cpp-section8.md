@@ -2724,21 +2724,5 @@ int main()
   - 최소 3번 
 - 안티바이러스, 음악을 틀고안틀고 멀티 쓰레딩에 차이가 많이남
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
