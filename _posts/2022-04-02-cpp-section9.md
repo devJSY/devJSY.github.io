@@ -1688,3 +1688,5 @@ int main()
 
 # 📌참조링크
 인프런 **따라하면서 배우는 C++** - [https://www.inflearn.com/course/following-c-plus](https://www.inflearn.com/course/following-c-plus)
+
+**공부하는 식빵맘 👱‍♀️ 님의 블로그** - [https://ansohxxn.github.io/](https://ansohxxn.github.io/)
